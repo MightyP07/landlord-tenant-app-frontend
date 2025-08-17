@@ -88,7 +88,7 @@ body {
 }
 
 .auth{
-  max-width: 400px;
+  max-width: 500px;
   margin: 60px auto;
   padding: 30px;
   background-color: white;
@@ -109,6 +109,31 @@ body {
   gap: 15px;
 }
 
+/* Add this new style for the name row inside the form */
+
+/* Name row inside form */
+.name-row {
+  display: flex;
+  gap: 10px; /* space between inputs */
+}
+
+/* Inputs inside the row */
+.name-row input {
+  flex: 1; /* equal width */
+  padding: 4px 10px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 10px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Focus effect stays consistent */
+.name-row input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
 .auth label {
   font-weight: 600;
   color: #333;
@@ -118,8 +143,8 @@ body {
 .auth input {
   padding: 10px 15px;
   border: 1.5px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
+  border-radius: 10px;
+  font-size: 12px;
   transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -159,11 +184,106 @@ body {
   text-align: center;
 }
 
-.forgotPassword{
-  color: blue;
-  transform: translateX(50%);
+/* Forgot Password Container */
+.forgotPasswordContainer {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
 }
 
-.forgotPassword:hover{
-  color: darkblue;
+.forgotPasswordContainer h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.forgotPasswordContainer p {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.forgotPasswordContainer .text-red-500 {
+  color: #e63946;
+}
+
+.forgotPasswordContainer .text-green-600 {
+  color: #2a9d8f;
+}
+
+.forgotPasswordContainer input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.forgotPasswordContainer input:focus {
+  border-color: #3498db;
+}
+
+.forgotPasswordContainer button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* Primary action buttons */
+.forgotPasswordContainer button.reset-code,
+.forgotPasswordContainer button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.forgotPasswordContainer button.reset-code:hover,
+.forgotPasswordContainer button[type="submit"]:hover {
+  background-color: #2980b9;
+}
+
+/* Cancel buttons */
+.forgotPasswordContainer .cancel-button {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.forgotPasswordContainer .cancel-button:hover {
+  background-color: #bdbdbd;
+}
+
+.cancelButton {
+  width: 100%;
+  border: 1px solid #d1d5db; /* gray-300 */
+  background: white;
+  padding: 0.5rem 0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  /* margin-top: 1rem; */
+}
+
+.cursor-pointer{
+  cursor: pointer;
+  color: blue;
+}
+.text-blue-600{
+  color: blue;
+};
+.reset-code{
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
 }

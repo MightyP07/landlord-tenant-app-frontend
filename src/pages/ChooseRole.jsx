@@ -1,13 +1,17 @@
+// src/pages/ChooseRole.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const ChooseRole = () => {
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+export default function ChooseRole() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = location.state?.userId; // User ID from Register page
+  const userId = location.state?.userId; // Passed from Register page
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,12 +28,12 @@ const ChooseRole = () => {
     }
 
     try {
-      const res = await fetch(`https://landlord-tenant-app.onrender.com/api/users/set-role/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ role }),
-      });
+      const res = await fetch(`${API_BASE}/api/users/set-role/${userId}`, {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  credentials: "include",
+  body: JSON.stringify({ role }),
+});
 
       const data = await res.json();
 
@@ -42,40 +46,49 @@ const ChooseRole = () => {
         toast.error(data.message || "Failed to set role.");
       }
     } catch (err) {
-      console.error("❌ Error setting role:", err);
-      toast.error("Something went wrong.");
+      console.error("❌ Role selection error:", err);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
   return (
     <section className="auth">
-      <ToastContainer />
-      <h2>Choose Your Role</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          <input
-            type="radio"
-            name="role"
-            value="tenant"
-            checked={role === "tenant"}
-            onChange={(e) => setRole(e.target.value)}
-          />
-          Tenant
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="role"
-            value="landlord"
-            checked={role === "landlord"}
-            onChange={(e) => setRole(e.target.value)}
-          />
-          Landlord
-        </label>
-        <button type="submit">Continue</button>
-      </form>
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+          <ToastContainer />
+          <h2 className="text-2xl font-bold mb-4 text-center">
+            Choose Your Role
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="role"
+                value="tenant"
+                checked={role === "tenant"}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              <span>Tenant</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="role"
+                value="landlord"
+                checked={role === "landlord"}
+                onChange={(e) => setRole(e.target.value)}
+              />
+              <span>Landlord</span>
+            </label>
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </div>
     </section>
   );
-};
-
-export default ChooseRole;
+}
