@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/dist/ReactToastify.css"; 
+import "../styles/register.css"
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -68,79 +69,66 @@ export default function Register() {
   };
 
   return (
-    <section className="auth">
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-          <ToastContainer />
-          <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-          <p className="text-sm text-center mb-4">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Log In
-            </Link>
-          </p>
+  <section className="auth">
+    <div>
+      <div>
+        <ToastContainer />
+        <h2>Register</h2>
+        <p>
+          Already have an account?{" "}
+          <Link to="/login">Log In</Link>
+        </p>
 
-          <form onSubmit={handleSubmit}>
-            {/* First + Last Name beside each other */}
-  <div className="name-row">
-    <input
-      type="text"
-      name="firstName"
-      placeholder="First Name"
-      value={formData.firstName}
-      onChange={handleChange}
-      required
-    />
-    <input
-      type="text"
-      name="lastName"
-      placeholder="Last Name"
-      value={formData.lastName}
-      onChange={handleChange}
-      required
-    />
-            </div>
-
+        <form onSubmit={handleSubmit}>
+          {/* First + Last Name beside each other */}
+          <div className="name-row">
             <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
               onChange={handleChange}
-              className="w-full p-2 mb-4 border border-gray-300 rounded"
               required
             />
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-            <div className="relative mb-4">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-              <span
-                className="absolute right-2 top-2 cursor-pointer text-gray-500"
-                onClick={toggleShowPassword}
-              >
-                {showPassword ? "🙈" : "👁️"}
-              </span>
-            </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-            >
-              Sign Up
-            </button>
-          </form>
-        </div>
+          <div className="password-wrapper">
+  <input
+    type={showPassword ? "text" : "password"}
+    name="password"
+    placeholder="Password"
+    value={formData.password}
+    onChange={handleChange}
+    required
+  />
+  <span onClick={toggleShowPassword}>
+    {showPassword ? "🙈" : "👁️"}
+  </span>
+</div>
+
+
+          <button type="submit">Sign Up</button>
+        </form>
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
+
 }

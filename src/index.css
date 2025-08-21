@@ -81,14 +81,13 @@ body {
   .hero h1 {
     font-size: 1.5rem;
   }
-
   .hero p {
     font-size: 1rem;
   }
 }
 
-.auth{
-  max-width: 500px;
+.auth {
+  max-width: 400px;
   margin: 60px auto;
   padding: 30px;
   background-color: white;
@@ -110,28 +109,16 @@ body {
 }
 
 /* Add this new style for the name row inside the form */
-
-/* Name row inside form */
 .name-row {
   display: flex;
-  gap: 10px; /* space between inputs */
+  gap: 10px; /* space between the inputs */
 }
 
-/* Inputs inside the row */
 .name-row input {
-  flex: 1; /* equal width */
-  padding: 4px 10px;
-  border: 1.5px solid #ccc;
-  border-radius: 8px;
-  font-size: 10px;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* Focus effect stays consistent */
-.name-row input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  flex: 1; /* make both inputs equal width */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 .auth label {
@@ -143,8 +130,8 @@ body {
 .auth input {
   padding: 10px 15px;
   border: 1.5px solid #ccc;
-  border-radius: 10px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 15px;
   transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -175,11 +162,11 @@ body {
   color: blue;
 }
 
-.loginButton:hover{
+.loginButton:hover {
   color: darkblue;
 }
 
-.loginButt{
+.loginButt {
   transform: translateY(-50%);
   text-align: center;
 }
@@ -266,7 +253,7 @@ body {
 }
 
 .cancelButton {
-  width: 100%;
+  width: 50%;
   border: 1px solid #d1d5db; /* gray-300 */
   background: white;
   padding: 0.5rem 0;
@@ -275,15 +262,38 @@ body {
   /* margin-top: 1rem; */
 }
 
-.cursor-pointer{
+.reset-box{
+    display: grid;
+    gap: 0.5rem;
+}
+
+.forgot-email{
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.cursor-pointer {
   cursor: pointer;
   color: blue;
 }
-.text-blue-600{
+
+.text-blue-600 {
   color: blue;
-};
-.reset-code{
+}
+
+.reset-code {
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
+};
+
+/* Add spacing between reset code and new password inputs */
+.auth-input + .auth-input {
+  margin-top: 1rem; /* 16px spacing */
+}
+
+/* Add spacing between input fields */
+.auth-input {
+  display: block;
+  margin-bottom: 0.5rem; /* 24px spacing between each input */
 }

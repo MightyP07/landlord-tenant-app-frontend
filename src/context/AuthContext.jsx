@@ -2,8 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 
-// Always include credentials for cookie-based auth
-axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true; // always send cookies
 
 const AuthContext = createContext();
 
@@ -11,31 +10,26 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Central API base (comes from .env)
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-  const fetchUser = async () => {
+  const fetchCurrentUser = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/auth/me`, {
-        withCredentials: true
-      });
-      setUser(res.data.user); // backend now sends { user: {...} }
+      const res = await axios.get(`${API_BASE}/api/users/me`);
+      setUser(res.data.user || null);
     } catch (err) {
-      if (err.response?.status !== 401) {
-        console.error("Error fetching user:", err);
-      }
       setUser(null);
+      if (err.response?.status !== 401) console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUser();
+    fetchCurrentUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, fetchCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
