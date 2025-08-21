@@ -4,4 +4,6 @@ const API_BASE =
     ? "http://localhost:5000"
     : "https://landlord-tenant-app.onrender.com");
 
+console.log("API_BASE is:", API_BASE);
+
 export default API_BASE;
