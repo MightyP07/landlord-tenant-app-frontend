@@ -3,9 +3,8 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import API_BASE from "../api.js";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function ChooseRole() {
   const [role, setRole] = useState("");

@@ -5,9 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/login.css"
-
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import API_BASE from "../api.js";
 
 export default function Login() {
   const { setUser } = useAuth();

@@ -4,9 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
 import "../styles/register.css"
+import API_BASE from "../api.js";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function Register() {
   const navigate = useNavigate();

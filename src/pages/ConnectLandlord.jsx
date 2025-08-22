@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./connectLandlord.css";
+import API_BASE from "../api.js";
+
 
 const ConnectLandlord = ({ user }) => {
   const [code, setCode] = useState("");
@@ -23,7 +25,7 @@ const ConnectLandlord = ({ user }) => {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/tenants/connect", {
+      const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tenantId: user._id, landlordCode: code }),
