@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-import "./viewComplaints.css";
+import "./viewcomplaints.css";
 
 export default function ViewComplaints() {
   const { user } = useAuth();
