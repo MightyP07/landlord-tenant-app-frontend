@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import "./Navbar.css";
+import API_BASE from "../api.js";  // import the base URL
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,7 +21,7 @@ function Navbar() {
     e.preventDefault();
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api/auth/logout`,
+        `${API_BASE}/api/auth/logout`,
         {},
         { withCredentials: true }
       );
@@ -30,7 +31,7 @@ function Navbar() {
       console.error("❌ Logout failed:", err);
     }
   };
-
+  
   const renderLinks = () => {
     if (!user) {
       // Not logged in
