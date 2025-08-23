@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/login.css"
+import "../styles/login.css";
 import API_BASE from "../api.js";
 
 export default function Login() {
@@ -16,7 +16,7 @@ export default function Login() {
   const [resetStep, setResetStep] = useState(1);
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  
+
   const navigate = useNavigate();
 
   // LOGIN HANDLER
@@ -30,44 +30,42 @@ export default function Login() {
     }
 
     try {
-      const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // important for cookies
         body: JSON.stringify({ email, password }),
       });
-      const loginData = await loginRes.json();
 
-      if (!loginRes.ok) throw new Error(loginData.message || "Invalid credentials");
+      const data = await res.json();
 
-      // Set user in context directly from login response
-      setUser(loginData.user);
+      if (!res.ok) throw new Error(data.message || "Invalid credentials");
+
+      // ✅ Save user to context (also updates localStorage)
+      setUser(data.user);
 
       toast.success("✅ Login successful! Redirecting...");
-// Set user in context directly from login response
-setUser(loginData.user);
-
-setTimeout(() => {
-  if (loginData.user.role === "landlord") {
-    navigate("/profile");
-  } else if (loginData.user.role === "tenant") {
-    if (loginData.user.connectedLandlord) {
-      navigate("/tenant-dashboard");
-    } else {
-      navigate("/connect-landlord"); // 🔑 new page we’ll build
-    }
-  } else {
-    navigate("/profile"); // fallback
-  }
-}, 1200);
+      
+      // ✅ Redirect based on role
+      setTimeout(() => {
+        if (data.user.role === "landlord") {
+          navigate("/profile");
+        } else if (data.user.role === "tenant") {
+          if (data.user.landlordId) {
+            navigate("/profile");
+          } else {
+            navigate("/connect-landlord");
+          }
+        } else {
+          navigate("/profile"); // fallback
+        }
+      }, 1000);
     } catch (err) {
       toast.error(err.message);
     }
-
-    
   };
 
-  // PASSWORD RESET - STEP 1
+  // PASSWORD RESET HANDLERS
   const handleRequestReset = async () => {
     if (!email) return toast.error("❌ Please enter your email");
 
@@ -78,6 +76,7 @@ setTimeout(() => {
         credentials: "include",
         body: JSON.stringify({ email }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Error sending code");
 
@@ -88,7 +87,6 @@ setTimeout(() => {
     }
   };
 
-  // PASSWORD RESET - STEP 2
   const handleResetPassword = async () => {
     if (!email || !resetCode || !newPassword)
       return toast.error("❌ All fields are required");
@@ -100,6 +98,7 @@ setTimeout(() => {
         credentials: "include",
         body: JSON.stringify({ email, code: resetCode, newPassword }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reset failed");
 
@@ -115,147 +114,146 @@ setTimeout(() => {
   };
 
   return (
-  <section className="auth">
-    <div className="auth-container">
-      <ToastContainer />
+    <section className="auth">
+      <div className="auth-container">
+        <ToastContainer />
 
-      {/* LOGIN FORM */}
-      {!forgotMode && (
-        <form onSubmit={handleSubmit} className="auth-form">
-          <h2 className="auth-title">Login</h2>
+        {/* LOGIN FORM */}
+        {!forgotMode && (
+          <form onSubmit={handleSubmit} className="auth-form">
+            <h2 className="auth-title">Login</h2>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="auth-input"
-            required
-          />
-
-          <div className="password-wrapper">
             <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="auth-input"
               required
             />
-            <span
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </span>
-          </div>
 
-          <div className="forgot-wrap">
-  <span
-    className="forgot-link"
-    onClick={() => {
-      setForgotMode(true);
-      setResetStep(1);
-    }}
-  >
-    Forgot Password?
-  </span>
-</div>
-
-
-          <button type="submit" className="btn btn-primary">
-            Login
-          </button>
-
-          <p className="auth-footer">
-            Don’t have an account?{" "}
-            <Link to="/register" className="auth-link">
-              Sign Up
-            </Link>
-          </p>
-        </form>
-      )}
-
-      {/* FORGOT PASSWORD */}
-      {forgotMode && (
-        <div className="auth-form">
-          <h2 className="auth-title">Forgot Password</h2>
-
-          {resetStep === 1 && (
-            <>
+            <div className="password-wrapper">
               <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="auth-input"
                 required
               />
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
 
-              <div className="reset-box">
-                <button onClick={handleRequestReset} className="btn btn-primary">
-                  Send Reset Code
-                </button>
-                <button onClick={() => setForgotMode(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
+            <div className="forgot-wrap">
+              <span
+                className="forgot-link"
+                onClick={() => {
+                  setForgotMode(true);
+                  setResetStep(1);
+                }}
+              >
+                Forgot Password?
+              </span>
+            </div>
 
-          {resetStep === 2 && (
-  <>
-    <input
-      type="text"
-      placeholder="Enter reset code"
-      value={resetCode}
-      onChange={(e) => setResetCode(e.target.value)}
-      className="auth-input"
-      required
-    />
+            <button type="submit" className="btn btn-primary">
+              Login
+            </button>
 
-    <div className="password-wrapper">
-      <input
-        type={showPassword ? "text" : "password"}
-        placeholder="New password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        className="auth-input"
-        required
-      />
-      <span
-        className="toggle-password"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? "🙈" : "👁️"}
-      </span>
-    </div>
+            <p className="auth-footer">
+              Don’t have an account?{" "}
+              <Link to="/register" className="auth-link">
+                Sign Up
+              </Link>
+            </p>
+          </form>
+        )}
 
-    <div className="reset-box">
-      <button
-        onClick={handleResetPassword}
-        className="btn btn-primary"
-      >
-        Reset Password
-      </button>
-      <button
-        onClick={() => {
-          setForgotMode(false);
-          setResetStep(1);
-          setEmail("");
-          setResetCode("");
-          setNewPassword("");
-        }}
-        className="btn btn-secondary"
-      >
-        Cancel
-      </button>
-    </div>
-  </>
-)}
-        </div>
-      )}
-    </div>
-  </section>
-);
+        {/* FORGOT PASSWORD */}
+        {forgotMode && (
+          <div className="auth-form">
+            <h2 className="auth-title">Forgot Password</h2>
+
+            {resetStep === 1 && (
+              <>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="auth-input"
+                  required
+                />
+
+                <div className="reset-box">
+                  <button onClick={handleRequestReset} className="btn btn-primary">
+                    Send Reset Code
+                  </button>
+                  <button onClick={() => setForgotMode(false)} className="btn btn-secondary">
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+
+            {resetStep === 2 && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Enter reset code"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                  className="auth-input"
+                  required
+                />
+
+                <div className="password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="auth-input"
+                    required
+                  />
+                  <span
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </span>
+                </div>
+
+                <div className="reset-box">
+                  <button
+                    onClick={handleResetPassword}
+                    className="btn btn-primary"
+                  >
+                    Reset Password
+                  </button>
+                  <button
+                    onClick={() => {
+                      setForgotMode(false);
+                      setResetStep(1);
+                      setEmail("");
+                      setResetCode("");
+                      setNewPassword("");
+                    }}
+                    className="btn btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }

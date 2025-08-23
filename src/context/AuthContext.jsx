@@ -1,35 +1,62 @@
 // src/context/AuthContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import axios from "axios";
+import API_BASE from "../api.js";
 
-axios.defaults.withCredentials = true; // always send cookies
+axios.defaults.withCredentials = true;
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // ✅ Load user immediately from localStorage
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-
+  // ✅ We no longer need loading for initial fetch since we trust localStorage
+  const loading = false;
+  // Optional: manual refresh from backend
   const fetchCurrentUser = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/api/users/me`);
-      setUser(res.data.user || null);
+      const res = await fetch(`${API_BASE}/api/users/me`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (res.ok && data.user) {
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
     } catch (err) {
-      setUser(null);
-      if (err.response?.status !== 401) console.error(err);
-    } finally {
-      setLoading(false);
+      console.error("❌ Fetch current user error:", err);
+      // do NOT clear localStorage on error
     }
   };
 
-  useEffect(() => {
-    fetchCurrentUser();
-  }, []);
+  // ✅ Wrapper to update state + localStorage
+  const updateUser = (userData) => {
+    setUser(userData);
+    if (userData) localStorage.setItem("user", JSON.stringify(userData));
+    else localStorage.removeItem("user");
+  };
+
+  // ✅ Logout helper
+  const logout = async () => {
+    try {
+      await axios.post(`${API_BASE}/api/auth/logout`);
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      updateUser(null);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, fetchCurrentUser }}>
+    <AuthContext.Provider
+      value={{ user, setUser: updateUser, fetchCurrentUser, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

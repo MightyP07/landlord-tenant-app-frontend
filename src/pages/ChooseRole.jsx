@@ -4,12 +4,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-
+import { useAuth } from "../context/AuthContext";
 
 export default function ChooseRole() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { setUser } = useAuth(); // ✅ update context after role set
+
   const userId = location.state?.userId; // Passed from Register page
 
   const handleSubmit = async (e) => {
@@ -28,18 +30,22 @@ export default function ChooseRole() {
 
     try {
       const res = await fetch(`${API_BASE}/api/users/set-role/${userId}`, {
-  method: "PUT",
-  headers: { "Content-Type": "application/json" },
-  credentials: "include",
-  body: JSON.stringify({ role }),
-});
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ role }),
+      });
 
       const data = await res.json();
 
       if (res.ok) {
-        toast.success(`✅ Account created as ${role}!`);
+        // ✅ Update AuthContext immediately
+        setUser(data.user);
+
+        toast.success(`✅ Account created as ${role}! Redirecting...`);
         setTimeout(() => {
-          navigate("/login");
+          if (role === "landlord") navigate("/profile");
+          else if (role === "tenant") navigate("/connect-landlord");
         }, 1500);
       } else {
         toast.error(data.message || "Failed to set role.");

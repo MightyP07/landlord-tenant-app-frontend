@@ -1,46 +1,53 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ChooseRole from './pages/ChooseRole';
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ChooseRole from "./pages/ChooseRole";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Profile from "./pages/Profile";
 import ConnectLandlord from "./pages/ConnectLandlord";
 
-// ✅ Separate inner app so we can use useAuth
+// ✅ Inner app so we can access auth state
 function AppRoutes() {
-  const { user } = useAuth();  // 👈 grab user from context
+  const { user, loading } = useAuth();
 
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/choose-role" element={<ChooseRole />} />
 
-      {/* Protected Profile */}
+      {/* Protected: any logged-in user */}
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<Profile />} />
       </Route>
 
-      {/* Tenant must enter landlord code */}
-      <Route path="/connect-landlord" element={<ConnectLandlord user={user} />} />
+      {/* Protected: only tenants */}
+      <Route element={<ProtectedRoute allowedRole="tenant" />}>
+        <Route path="/connect-landlord" element={<ConnectLandlord />} />
+      </Route>
+
+      {/* Future landlord-only example:
+      <Route element={<ProtectedRoute allowedRole="landlord" />}>
+        <Route path="/tenants" element={<Tenants />} />
+      </Route>
+      */}
     </Routes>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Navbar />
-        <AppRoutes />   {/* ✅ use routes inside */}
+        <AppRoutes />
       </Router>
     </AuthProvider>
   );
 }
-
-export default App;

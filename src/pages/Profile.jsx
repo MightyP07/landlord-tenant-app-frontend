@@ -1,8 +1,8 @@
 // src/pages/Profile.jsx
-
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
+import API_BASE from "../api.js";
 
 export default function Profile() {
   const { user, loading, setUser } = useAuth();
@@ -18,7 +18,7 @@ export default function Profile() {
       setConnecting(true);
       setMessage("");
 
-      const res = await fetch("/api/tenants/connect", {
+      const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tenantId: user._id, landlordCode }),
@@ -37,8 +37,32 @@ export default function Profile() {
     }
   };
 
-  // Tenant View
-  const TenantProfile = () => (
+  return user.role === "tenant" ? (
+    <TenantProfile
+      user={user}
+      landlordCode={landlordCode}
+      setLandlordCode={setLandlordCode}
+      connectLandlord={connectLandlord}
+      connecting={connecting}
+      message={message}
+    />
+  ) : (
+    <LandlordProfile user={user} />
+  );
+}
+
+// ---------------- Tenant Profile ----------------
+function TenantProfile({
+  user,
+  landlordCode,
+  setLandlordCode,
+  connectLandlord,
+  connecting,
+  message,
+}) {
+  console.log("Form re-rendered"); // debug log
+
+  return (
     <div className="profile-page tenant-profile">
       <div className="profile-header">
         <h1>Tenant Dashboard</h1>
@@ -64,28 +88,45 @@ export default function Profile() {
       <div className="dashboard-section">
         <h2>Your Landlord</h2>
         {user.landlordId ? (
-  <ul>
-    <li><strong>Name:</strong> {user.landlordId.firstName} {user.landlordId.lastName}</li>
-    <li><strong>Email:</strong> {user.landlordId.email}</li>
-  </ul>
+          <ul>
+            <li><strong>Name:</strong> {user.landlordId.firstName} {user.landlordId.lastName}</li>
+            <li><strong>Email:</strong> {user.landlordId.email}</li>
+          </ul>
         ) : (
           <>
             <p>Not connected to a landlord yet.</p>
-            <input
-              type="text"
-              value={landlordCode}
-              onChange={(e) => setLandlordCode(e.target.value)}
-              placeholder="Enter landlord code"
-            />
-            <button
-              className="btn-primary"
-              onClick={connectLandlord}
-              disabled={connecting}
+
+            <form
+              className="connect-form"
+              onSubmit={(e) => {
+                e.preventDefault(); // stops reload
+                connectLandlord(); // safe call
+              }}
             >
-              {connecting ? "Connecting..." : "Connect"}
-            </button>
+              <input
+                type="text"
+                value={landlordCode}
+                onChange={(e) => setLandlordCode(e.target.value)}
+                placeholder="Enter landlord code"
+                className="connect-input"
+              />
+              <button
+                type="submit"
+                className="connect-btn"
+                disabled={connecting}
+              >
+                {connecting ? "Connecting..." : "Connect"}
+              </button>
+            </form>
+
             {message && (
-              <p className={message.startsWith("✅") ? "success-message" : "error-message"}>
+              <p
+                className={
+                  message.startsWith("✅")
+                    ? "success-message"
+                    : "error-message"
+                }
+              >
                 {message}
               </p>
             )}
@@ -94,9 +135,11 @@ export default function Profile() {
       </div>
     </div>
   );
+}
 
-  // Landlord View
-  const LandlordProfile = () => (
+// ---------------- Landlord Profile ----------------
+function LandlordProfile({ user }) {
+  return (
     <div className="profile-page landlord-profile">
       <div className="profile-header">
         <h1>Landlord Dashboard</h1>
@@ -130,6 +173,4 @@ export default function Profile() {
       </div>
     </div>
   );
-
-  return user.role === "tenant" ? <TenantProfile /> : <LandlordProfile />;
 }

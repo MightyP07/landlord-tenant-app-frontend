@@ -17,7 +17,7 @@ function Navbar() {
   }, [menuOpen]);
 
   const handleLogout = async (e) => {
-    e.preventDefault(); // prevent default link navigation
+    e.preventDefault();
     try {
       await axios.post(
         `${import.meta.env.VITE_API_BASE || "http://localhost:5000"}/api/auth/logout`,
@@ -48,7 +48,7 @@ function Navbar() {
       return (
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-          <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a Complaint</Link>
+          <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a complaint</Link>
           <Link to="/logout" onClick={(e) => { handleLogout(e); setMenuOpen(false); }}>Logout</Link>
         </>
       );
