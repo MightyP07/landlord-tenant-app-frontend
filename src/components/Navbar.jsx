@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Navbar.css";
-import API_BASE from "../api.js";  // import the base URL
+import API_BASE from "../api.js";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,24 +19,20 @@ function Navbar() {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
   }, [menuOpen]);
 
-  const handleLogout = async (e) => {
-    e.preventDefault();
+  const handleLogout = async () => {
+    toast.info("Please wait, logging out...");
     try {
-      await axios.post(
-        `${API_BASE}/api/auth/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${API_BASE}/api/auth/logout`, {}, { withCredentials: true });
       setUser(null);
       navigate("/login");
     } catch (err) {
       console.error("❌ Logout failed:", err);
+      toast.error("Logout failed. Try again.");
     }
   };
-  
+
   const renderLinks = () => {
     if (!user) {
-      // Not logged in
       return (
         <>
           <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
@@ -44,24 +42,40 @@ function Navbar() {
       );
     }
 
-    // Logged in — tenant
     if (user.role === "tenant") {
       return (
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a complaint</Link>
-          <Link to="/logout" onClick={(e) => { handleLogout(e); setMenuOpen(false); }}>Logout</Link>
+          <Link
+            to="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setMenuOpen(false);
+              handleLogout();
+            }}
+          >
+            Logout
+          </Link>
         </>
       );
     }
 
-    // Logged in — landlord
     if (user.role === "landlord") {
       return (
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-          <Link to="/viewcomplaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
-          <Link to="/logout" onClick={(e) => { handleLogout(e); setMenuOpen(false); }}>Logout</Link>
+          <Link to="/view-complaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
+          <Link
+            to="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setMenuOpen(false);
+              handleLogout();
+            }}
+          >
+            Logout
+          </Link>
         </>
       );
     }
@@ -71,6 +85,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
+      <ToastContainer />
       <div className="navbar-top-row">
         <div className="navbar-logo">🏠 RentEase</div>
         <button className="menu-toggle" onClick={toggleMenu}>

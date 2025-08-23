@@ -1,0 +1,52 @@
+/* src/pages/viewComplaints.css */
+.complaints-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.complaints-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1d4ed8;
+}
+
+.complaints-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.complaint-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.complaint-card h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.complaint-card p {
+  margin: 5px 0;
+}
+
+.complaint-meta {
+  font-size: 12px;
+  color: #555;
+  font-style: italic;
+}
+
+.multi-issues-list {
+  margin: 5px 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}

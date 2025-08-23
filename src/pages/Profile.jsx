@@ -1,4 +1,5 @@
 // src/pages/Profile.jsx
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
@@ -9,7 +10,7 @@ export default function Profile() {
   const [landlordCode, setLandlordCode] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
-
+  
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
 
@@ -61,7 +62,8 @@ function TenantProfile({
   message,
 }) {
   console.log("Form re-rendered"); // debug log
-
+  const navigate = useNavigate();
+  
   return (
     <div className="profile-page tenant-profile">
       <div className="profile-header">
@@ -71,7 +73,13 @@ function TenantProfile({
       </div>
 
       <div className="profile-actions">
-        <button className="btn-primary">Log a Complaint</button>
+        
+<button
+  className="btn-primary"
+  onClick={() => navigate("/complaints")}
+>
+  Log a Complaint
+</button>
         <button className="btn-secondary">View Rental Info</button>
       </div>
 
@@ -139,6 +147,7 @@ function TenantProfile({
 
 // ---------------- Landlord Profile ----------------
 function LandlordProfile({ user }) {
+    const navigate = useNavigate();
   return (
     <div className="profile-page landlord-profile">
       <div className="profile-header">
@@ -148,7 +157,12 @@ function LandlordProfile({ user }) {
       </div>
 
       <div className="profile-actions">
-        <button className="btn-primary">View Complaints</button>
+        <button
+  className="btn-primary"
+  onClick={() => navigate("/view-complaints")}
+>
+  View Complaints
+</button>
         <button className="btn-secondary">Manage Tenants</button>
       </div>
 

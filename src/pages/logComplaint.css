@@ -1,0 +1,143 @@
+/* src/pages/logComplaint.css */
+
+.complaint-container {
+  max-width: 550px;
+  margin: 50px auto;
+  padding: 30px 25px;
+  background-color: #f9f9fb;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.complaint-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.complaint-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Inputs, textarea, and select */
+.complaint-form input,
+.complaint-form select,
+.complaint-form textarea {
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+}
+
+.complaint-form input:focus,
+.complaint-form textarea:focus,
+.complaint-form select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  background-color: #fff;
+}
+
+/* Textarea */
+.complaint-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Dropdown */
+.complaint-form select {
+  cursor: pointer;
+  background-color: #ffffff;
+}
+
+/* Multi-choice section */
+.complaint-form fieldset {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  background-color: #fefefe;
+}
+
+.complaint-form legend {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.multi-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;          /* space between checkbox and label */
+  margin-bottom: 10px; /* space between options */
+  font-size: 14px;
+}
+
+.multi-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb; /* modern checkbox color */
+  cursor: pointer;
+}
+
+/* Hover effect for labels */
+.multi-checkbox label {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.multi-checkbox label:hover {
+  color: #2563eb;
+}
+
+/* Buttons */
+.complaint-form button {
+  padding: 14px;
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.complaint-form button:hover {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  transform: translateY(-2px);
+}
+
+.complaint-form button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Toast messages and paragraph texts */
+p {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+p.warning-text {
+  color: #b91c1c;
+}
+
+p.success-text {
+  color: #15803d;
+}
+
+p.error-text {
+  color: #b91c1c;
+}

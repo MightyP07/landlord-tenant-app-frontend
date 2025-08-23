@@ -16,16 +16,19 @@ export default function Login() {
   const [resetStep, setResetStep] = useState(1);
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ new loading state
 
   const navigate = useNavigate();
 
   // LOGIN HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ start loading
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(email)) {
       toast.error("❌ Please use a valid Gmail or Yahoo email address.");
+      setLoading(false);
       return;
     }
 
@@ -33,21 +36,22 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // important for cookies
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Invalid credentials");
 
-      // ✅ Save user to context (also updates localStorage)
+      // Save user to context
       setUser(data.user);
 
-      toast.success("✅ Login successful! Redirecting...");
-      
-      // ✅ Redirect based on role
+      // Show loading toast
+      toast.info("⏳ Please wait, redirecting...");
+
+      // Redirect based on role
       setTimeout(() => {
+        setLoading(false);
         if (data.user.role === "landlord") {
           navigate("/profile");
         } else if (data.user.role === "tenant") {
@@ -57,10 +61,11 @@ export default function Login() {
             navigate("/connect-landlord");
           }
         } else {
-          navigate("/profile"); // fallback
+          navigate("/profile");
         }
       }, 1000);
     } catch (err) {
+      setLoading(false);
       toast.error(err.message);
     }
   };
@@ -161,8 +166,12 @@ export default function Login() {
               </span>
             </div>
 
-            <button type="submit" className="btn btn-primary">
-              Login
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading} // ✅ disable during loading
+            >
+              {loading ? "⏳ Please wait..." : "Login"} {/* ✅ shows message */}
             </button>
 
             <p className="auth-footer">
