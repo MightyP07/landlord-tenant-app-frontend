@@ -16,18 +16,18 @@ export default function Login() {
   const [resetStep, setResetStep] = useState(1);
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ new loading state
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   // LOGIN HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // ✅ start loading
+    setLoading(true);
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(email)) {
-      toast.error("❌ Please use a valid Gmail or Yahoo email address.");
+      toast.error("❌ Please use a valid Gmail or Yahoo email address.", { autoClose: 3000 });
       setLoading(false);
       return;
     }
@@ -43,36 +43,25 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid credentials");
 
-      // Save user to context
       setUser(data.user);
+      toast.info("⏳ Please wait, redirecting...", { autoClose: 1500 });
 
-      // Show loading toast
-      toast.info("⏳ Please wait, redirecting...");
-
-      // Redirect based on role
       setTimeout(() => {
         setLoading(false);
-        if (data.user.role === "landlord") {
-          navigate("/profile");
-        } else if (data.user.role === "tenant") {
-          if (data.user.landlordId) {
-            navigate("/profile");
-          } else {
-            navigate("/connect-landlord");
-          }
-        } else {
-          navigate("/profile");
-        }
-      }, 1000);
+        if (data.user.role === "landlord") navigate("/profile");
+        else if (data.user.role === "tenant") {
+          navigate(data.user.landlordId ? "/profile" : "/connect-landlord");
+        } else navigate("/profile");
+      }, 1600);
     } catch (err) {
       setLoading(false);
-      toast.error(err.message);
+      toast.error(err.message, { autoClose: 3000 });
     }
   };
 
   // PASSWORD RESET HANDLERS
   const handleRequestReset = async () => {
-    if (!email) return toast.error("❌ Please enter your email");
+    if (!email) return toast.error("❌ Please enter your email", { autoClose: 3000 });
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
@@ -85,16 +74,16 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Error sending code");
 
-      toast.success("📧 Reset code sent! Check your email.");
+      toast.success("📧 Reset code sent! Check your email.", { autoClose: 3000 });
       setResetStep(2);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, { autoClose: 3000 });
     }
   };
 
   const handleResetPassword = async () => {
     if (!email || !resetCode || !newPassword)
-      return toast.error("❌ All fields are required");
+      return toast.error("❌ All fields are required", { autoClose: 3000 });
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
@@ -107,21 +96,31 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reset failed");
 
-      toast.success("🎉 Password reset successful! You can now log in.");
+      toast.success("🎉 Password reset successful! You can now log in.", { autoClose: 3000 });
       setForgotMode(false);
       setResetStep(1);
       setEmail("");
       setResetCode("");
       setNewPassword("");
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message, { autoClose: 3000 });
     }
   };
 
   return (
     <section className="auth">
       <div className="auth-container">
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          autoClose={3000} // auto closes after 3s
+        />
 
         {/* LOGIN FORM */}
         {!forgotMode && (
@@ -169,9 +168,9 @@ export default function Login() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={loading} // ✅ disable during loading
+              disabled={loading}
             >
-              {loading ? "⏳ Please wait..." : "Login"} {/* ✅ shows message */}
+              {loading ? "⏳ Please wait..." : "Login"}
             </button>
 
             <p className="auth-footer">
@@ -203,7 +202,14 @@ export default function Login() {
                   <button onClick={handleRequestReset} className="btn btn-primary">
                     Send Reset Code
                   </button>
-                  <button onClick={() => setForgotMode(false)} className="btn btn-secondary">
+                  <button
+                    onClick={() => {
+                      setForgotMode(false);
+                      setResetStep(1);
+                      toast.dismiss(); // clear any active toast
+                    }}
+                    className="btn btn-secondary"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -252,6 +258,7 @@ export default function Login() {
                       setEmail("");
                       setResetCode("");
                       setNewPassword("");
+                      toast.dismiss(); // clear toast
                     }}
                     className="btn btn-secondary"
                   >
