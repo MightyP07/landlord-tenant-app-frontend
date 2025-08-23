@@ -56,7 +56,7 @@ export default function LogComplaint() {
     toast.info("⏳ Please wait, logging your complaint...");
 
     try {
-      const res = await fetch(`${API_BASE}/api/complaints`, {
+      const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
