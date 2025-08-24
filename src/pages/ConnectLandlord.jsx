@@ -31,14 +31,17 @@ export default function ConnectLandlord() {
     setMessage("");
 
     try {
+      const token =
+        localUser?.token ||
+        JSON.parse(localStorage.getItem("user"))?.token; // ✅ safer token fetch
+
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localUser?.token}`, // ✅ include token
+          Authorization: `Bearer ${token}`, // ✅ always send JWT
         },
         body: JSON.stringify({ landlordCode: code.trim() }),
-        credentials: "include",
       });
 
       const data = await res.json();
@@ -100,12 +103,20 @@ export default function ConnectLandlord() {
           </button>
         </form>
 
-        <button type="button" onClick={() => navigate("/profile")} className="btn-secondary">
+        <button
+          type="button"
+          onClick={() => navigate("/profile")}
+          className="btn-secondary"
+        >
           Skip for now
         </button>
 
         {message && (
-          <p className={`message ${message.startsWith("✅") ? "success-text" : "error-text"}`}>
+          <p
+            className={`message ${
+              message.startsWith("✅") ? "success-text" : "error-text"
+            }`}
+          >
             {message}
           </p>
         )}
