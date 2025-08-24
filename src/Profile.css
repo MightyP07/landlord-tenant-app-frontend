@@ -186,3 +186,26 @@
   background: #999;
   cursor: not-allowed;
 }
+
+
+.tenant-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.tenant-table th,
+.tenant-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.tenant-table th {
+  background-color: #003366;
+  color: white;
+}
+
+.tenant-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

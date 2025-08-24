@@ -18,7 +18,6 @@ export default function Register() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false); // ✅ new loading state
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -28,12 +27,10 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // ✅ start loading
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(formData.email)) {
       toast.error("❌ Please use a valid Gmail or Yahoo email address.");
-      setLoading(false);
       return;
     }
 
@@ -48,26 +45,24 @@ export default function Register() {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // ✅ important for cookies
         body: JSON.stringify(trimmedData),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setUser(data.user);
-        toast.info("⏳ Please wait, redirecting..."); // ✅ new loading message
 
+        toast.success("🎉 Registration successful! Redirecting...");
+
+        // ✅ Redirect to ChooseRole
         setTimeout(() => {
-          setLoading(false);
           navigate("/choose-role", { state: { userId: data.user._id } });
         }, 1200);
       } else {
-        setLoading(false);
         toast.error(data.message || "Registration failed.");
       }
     } catch (err) {
-      setLoading(false);
       console.error("❌ Registration error:", err);
       toast.error("An error occurred. Please try again.");
     }
@@ -80,9 +75,7 @@ export default function Register() {
         <h2>Register</h2>
         <p>
           Already have an account?{" "}
-          <Link to="/login" className="auth-link">
-            Log In
-          </Link>
+          <Link to="/login" className="auth-link">Log In</Link>
         </p>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -128,8 +121,8 @@ export default function Register() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "⏳ Please wait..." : "Sign Up"} {/* ✅ shows message */}
+          <button type="submit" className="btn btn-primary">
+            Sign Up
           </button>
         </form>
       </div>

@@ -1,16 +1,17 @@
 // src/pages/Profile.jsx
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
 import API_BASE from "../api.js";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const { user, loading, setUser } = useAuth();
   const [landlordCode, setLandlordCode] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
-  
+  const navigate = useNavigate();
+
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
 
@@ -48,7 +49,7 @@ export default function Profile() {
       message={message}
     />
   ) : (
-    <LandlordProfile user={user} />
+    <LandlordProfile user={user} navigate={navigate} />
   );
 }
 
@@ -61,9 +62,7 @@ function TenantProfile({
   connecting,
   message,
 }) {
-  console.log("Form re-rendered"); // debug log
   const navigate = useNavigate();
-  
   return (
     <div className="profile-page tenant-profile">
       <div className="profile-header">
@@ -73,13 +72,10 @@ function TenantProfile({
       </div>
 
       <div className="profile-actions">
-        
-<button
-  className="btn-primary"
-  onClick={() => navigate("/complaints")}
->
+        <button className="btn-primary" onClick={() => navigate("/complaints")}>
   Log a Complaint
 </button>
+
         <button className="btn-secondary">View Rental Info</button>
       </div>
 
@@ -103,12 +99,11 @@ function TenantProfile({
         ) : (
           <>
             <p>Not connected to a landlord yet.</p>
-
             <form
               className="connect-form"
               onSubmit={(e) => {
-                e.preventDefault(); // stops reload
-                connectLandlord(); // safe call
+                e.preventDefault();
+                connectLandlord();
               }}
             >
               <input
@@ -146,8 +141,7 @@ function TenantProfile({
 }
 
 // ---------------- Landlord Profile ----------------
-function LandlordProfile({ user }) {
-    const navigate = useNavigate();
+function LandlordProfile({ user, navigate }) {
   return (
     <div className="profile-page landlord-profile">
       <div className="profile-header">
@@ -157,13 +151,13 @@ function LandlordProfile({ user }) {
       </div>
 
       <div className="profile-actions">
+        <button className="btn-primary" onClick={() => navigate ("/viewcomplaints")}>View Complaints</button>
         <button
-  className="btn-primary"
-  onClick={() => navigate("/view-complaints")}
->
-  View Complaints
-</button>
-        <button className="btn-secondary">Manage Tenants</button>
+          className="btn-secondary"
+          onClick={() => navigate("/manage-tenants")}
+        >
+          Manage Tenants
+        </button>
       </div>
 
       <div className="profile-info">

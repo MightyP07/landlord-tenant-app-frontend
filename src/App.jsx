@@ -9,8 +9,9 @@ import ChooseRole from "./pages/ChooseRole";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Profile from "./pages/Profile";
 import ConnectLandlord from "./pages/ConnectLandlord";
-import LogComplaint from "./pages/LogComplaints.jsx";
-import ViewComplaints from "./pages/ViewComplaints.jsx";
+import ManageTenants from "./pages/ManageTenants.jsx";
+import ViewComplaints from "./pages/ViewComplaints.jsx"
+import LogComplaints from "./pages/LogComplaints.jsx"
 
 // ✅ Inner app so we can access auth state
 function AppRoutes() {
@@ -32,13 +33,20 @@ function AppRoutes() {
       {/* Protected: only tenants */}
       <Route element={<ProtectedRoute allowedRole="tenant" />}>
         <Route path="/connect-landlord" element={<ConnectLandlord />} />
-         <Route path="/complaints" element={<LogComplaint />} />
       </Route>
 
-      {/* Protected: only landlords */}
       <Route element={<ProtectedRoute allowedRole="landlord" />}>
-         <Route path="/view-complaints" element={<ViewComplaints />} />
-      </Route>
+  <Route path="/manage-tenants" element={<ManageTenants />} />
+</Route>
+
+<Route element={<ProtectedRoute allowedRole="landlord" />}>
+  <Route path="/viewcomplaints" element={<ViewComplaints />} />
+</Route>
+
+<Route element={<ProtectedRoute allowedRole="tenant" />}>
+  <Route path="/complaints" element={<LogComplaints />} />
+</Route>
+
 
     </Routes>
   );

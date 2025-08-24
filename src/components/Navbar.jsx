@@ -3,12 +3,10 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Navbar.css";
 import API_BASE from "../api.js";
+import "./Navbar.css";
 
-function Navbar() {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
@@ -19,15 +17,14 @@ function Navbar() {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
   }, [menuOpen]);
 
-  const handleLogout = async () => {
-    toast.info("Please wait, logging out...");
+  const handleLogout = async (e) => {
+    e.preventDefault();
     try {
       await axios.post(`${API_BASE}/api/auth/logout`, {}, { withCredentials: true });
       setUser(null);
       navigate("/login");
     } catch (err) {
       console.error("❌ Logout failed:", err);
-      toast.error("Logout failed. Try again.");
     }
   };
 
@@ -47,16 +44,7 @@ function Navbar() {
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a complaint</Link>
-          <Link
-            to="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setMenuOpen(false);
-              handleLogout();
-            }}
-          >
-            Logout
-          </Link>
+          <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );
     }
@@ -65,17 +53,8 @@ function Navbar() {
       return (
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
-          <Link to="/view-complaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
-          <Link
-            to="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setMenuOpen(false);
-              handleLogout();
-            }}
-          >
-            Logout
-          </Link>
+          <Link to="/viewcomplaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
+          <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );
     }
@@ -85,7 +64,6 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <ToastContainer />
       <div className="navbar-top-row">
         <div className="navbar-logo">🏠 RentEase</div>
         <button className="menu-toggle" onClick={toggleMenu}>
@@ -99,5 +77,3 @@ function Navbar() {
     </nav>
   );
 }
-
-export default Navbar;

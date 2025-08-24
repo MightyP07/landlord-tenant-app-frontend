@@ -1,12 +1,10 @@
-/* Default navbar */
 .navbar {
   display: flex;
-  justify-content: space-between;
   flex-direction: column;
   align-items: center;
   background-color: #003366;
-  /* padding: 1rem; */
   position: relative;
+  width: 100%;
 }
 
 .navbar-top-row {
@@ -14,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  /* height: 1rem; */
+  padding: 0.75rem 1rem;
 }
 
 .navbar-logo {
@@ -32,45 +30,55 @@
   cursor: pointer;
 }
 
+/* Links container */
 .navbar-links {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
-  .navbar a {
+.navbar-links a,
+.navbar-links button {
   color: white;
   text-decoration: none;
-  padding: 10px 20px;
-  margin: 0 10px;
   font-weight: 600;
   font-size: 16px;
-  position: relative;
+  padding: 10px 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition: color 0.3s ease;
+}
+
+.navbar-links a:hover,
+.navbar-links button:hover {
+  color: #a8dfff;
+}
+
+.navbar a {
+  position: relative; /* needed for ::after */
 }
 
 .navbar a::after {
   content: "";
   position: absolute;
-  bottom: 4px;
-  left: 50%;
+  bottom: 0;
+  left: 0;
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, #00b4ff, #007bff); /* blue gradient */
-  transition: width 0.4s ease, left 0.4s ease;
+  background: linear-gradient(90deg, #00b4ff, #007bff);
+  transition: width 0.3s ease;
   border-radius: 2px;
 }
 
-.navbar a:hover {
-  color: #a8dfff; /* soft hover glow */
-}
-
 .navbar a:hover::after {
-  width: 100%;
+  width: 10%;
   left: 0;
+  right: 0;
 }
 
 
-/* Mobile styles */
+/* Mobile Styles */
 @media (max-width: 600px) {
   .menu-toggle {
     display: block;
@@ -80,22 +88,24 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
-    margin-top: 0.75rem;
     width: 100%;
-
-    /* Important part for animation */
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
-    padding: 0 0; /* no padding when collapsed */
+    padding: 0 0;
   }
 
   .navbar-links.show {
-    max-height: 300px; /* or something big enough */
-    padding: 0.75rem 0;
+    max-height: 500px; /* enough to fit all links */
+    padding: 0.75rem 1rem;
   }
 
-  .navbar a {
+  .navbar-links a,
+  .navbar-links button {
+    display: block;
+    width: 100%;
+    text-align: left;
     padding: 0.5rem 0;
+    color: white;
   }
 }

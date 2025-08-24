@@ -16,19 +16,18 @@ export default function Login() {
   const [resetStep, setResetStep] = useState(1);
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [showLandlordCodeInput, setShowLandlordCodeInput] = useState(false);
+  const [landlordCode, setLandlordCode] = useState("");
 
   const navigate = useNavigate();
 
   // LOGIN HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(email)) {
-      toast.error("❌ Please use a valid Gmail or Yahoo email address.", { autoClose: 3000 });
-      setLoading(false);
+      toast.error("❌ Please use a valid Gmail or Yahoo email address.");
       return;
     }
 
@@ -44,24 +43,52 @@ export default function Login() {
       if (!res.ok) throw new Error(data.message || "Invalid credentials");
 
       setUser(data.user);
-      toast.info("⏳ Please wait, redirecting...", { autoClose: 1500 });
+      toast.success("✅ Login successful!");
 
-      setTimeout(() => {
-        setLoading(false);
-        if (data.user.role === "landlord") navigate("/profile");
-        else if (data.user.role === "tenant") {
-          navigate(data.user.landlordId ? "/profile" : "/connect-landlord");
-        } else navigate("/profile");
-      }, 1600);
+      // LANDLORD CODE FLOW
+      if (data.user.role === "landlord") {
+        setTimeout(() => navigate("/profile"), 1000);
+      } else if (data.user.role === "tenant") {
+        if (data.user.landlordId) {
+          setTimeout(() => navigate("/profile"), 1000);
+        } else {
+          // Tenant has no landlord connected → show code input
+          setShowLandlordCodeInput(true);
+        }
+      } else {
+        setTimeout(() => navigate("/profile"), 1000);
+      }
     } catch (err) {
-      setLoading(false);
-      toast.error(err.message, { autoClose: 3000 });
+      toast.error(err.message);
+    }
+  };
+
+  // CONNECT LANDLORD CODE FOR TENANT
+  const handleConnectLandlord = async () => {
+    if (!landlordCode) return toast.error("❌ Please enter a landlord code.");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/tenants/connect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ landlordCode }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Invalid code");
+
+      setUser(data.user);
+      toast.success("✅ Landlord connected successfully!");
+      setTimeout(() => navigate("/profile"), 1000);
+    } catch (err) {
+      toast.error(err.message);
     }
   };
 
   // PASSWORD RESET HANDLERS
   const handleRequestReset = async () => {
-    if (!email) return toast.error("❌ Please enter your email", { autoClose: 3000 });
+    if (!email) return toast.error("❌ Please enter your email");
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
@@ -74,16 +101,16 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Error sending code");
 
-      toast.success("📧 Reset code sent! Check your email.", { autoClose: 3000 });
+      toast.success("📧 Reset code sent! Check your email.");
       setResetStep(2);
     } catch (err) {
-      toast.error(err.message, { autoClose: 3000 });
+      toast.error(err.message);
     }
   };
 
   const handleResetPassword = async () => {
     if (!email || !resetCode || !newPassword)
-      return toast.error("❌ All fields are required", { autoClose: 3000 });
+      return toast.error("❌ All fields are required");
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
@@ -96,34 +123,24 @@ export default function Login() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Reset failed");
 
-      toast.success("🎉 Password reset successful! You can now log in.", { autoClose: 3000 });
+      toast.success("🎉 Password reset successful! You can now log in.");
       setForgotMode(false);
       setResetStep(1);
       setEmail("");
       setResetCode("");
       setNewPassword("");
     } catch (err) {
-      toast.error(err.message, { autoClose: 3000 });
+      toast.error(err.message);
     }
   };
 
   return (
     <section className="auth">
       <div className="auth-container">
-        <ToastContainer
-          position="top-center"
-          hideProgressBar={false}
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          autoClose={3000} // auto closes after 3s
-        />
+        <ToastContainer />
 
         {/* LOGIN FORM */}
-        {!forgotMode && (
+        {!forgotMode && !showLandlordCodeInput && (
           <form onSubmit={handleSubmit} className="auth-form">
             <h2 className="auth-title">Login</h2>
 
@@ -165,12 +182,8 @@ export default function Login() {
               </span>
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? "⏳ Please wait..." : "Login"}
+            <button type="submit" className="btn btn-primary">
+              Login
             </button>
 
             <p className="auth-footer">
@@ -180,6 +193,33 @@ export default function Login() {
               </Link>
             </p>
           </form>
+        )}
+
+        {/* TENANT LANDLORD CODE INPUT */}
+        {showLandlordCodeInput && (
+          <div className="auth-form">
+            <h2 className="auth-title">Enter Landlord Code</h2>
+
+            <input
+              type="text"
+              placeholder="Landlord Code"
+              value={landlordCode}
+              onChange={(e) => setLandlordCode(e.target.value)}
+              className="auth-input"
+            />
+
+            <div className="reset-box">
+              <button onClick={handleConnectLandlord} className="btn btn-primary">
+                Connect Landlord
+              </button>
+              <button
+                onClick={() => setShowLandlordCodeInput(false)}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         )}
 
         {/* FORGOT PASSWORD */}
@@ -202,14 +242,7 @@ export default function Login() {
                   <button onClick={handleRequestReset} className="btn btn-primary">
                     Send Reset Code
                   </button>
-                  <button
-                    onClick={() => {
-                      setForgotMode(false);
-                      setResetStep(1);
-                      toast.dismiss(); // clear any active toast
-                    }}
-                    className="btn btn-secondary"
-                  >
+                  <button onClick={() => setForgotMode(false)} className="btn btn-secondary">
                     Cancel
                   </button>
                 </div>
@@ -245,10 +278,7 @@ export default function Login() {
                 </div>
 
                 <div className="reset-box">
-                  <button
-                    onClick={handleResetPassword}
-                    className="btn btn-primary"
-                  >
+                  <button onClick={handleResetPassword} className="btn btn-primary">
                     Reset Password
                   </button>
                   <button
@@ -258,7 +288,6 @@ export default function Login() {
                       setEmail("");
                       setResetCode("");
                       setNewPassword("");
-                      toast.dismiss(); // clear toast
                     }}
                     className="btn btn-secondary"
                   >

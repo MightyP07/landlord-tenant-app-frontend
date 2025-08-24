@@ -4,14 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-import { useAuth } from "../context/AuthContext";
 
 export default function ChooseRole() {
   const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ new loading state
   const navigate = useNavigate();
   const location = useLocation();
-  const { setUser } = useAuth();
 
   const userId = location.state?.userId; // Passed from Register page
 
@@ -29,9 +26,6 @@ export default function ChooseRole() {
       return;
     }
 
-    setLoading(true); // ✅ start loading
-    toast.info("⏳ Please wait, setting your role...");
-
     try {
       const res = await fetch(`${API_BASE}/api/users/set-role/${userId}`, {
         method: "PUT",
@@ -43,21 +37,23 @@ export default function ChooseRole() {
       const data = await res.json();
 
       if (res.ok) {
-        setUser(data.user); // ✅ update context immediately
+        // ✅ Landlord: show their special code
+        if (role === "landlord" && data.user.landlordCode) {
+          toast.info(`🎉 Your landlord code is: ${data.user.landlordCode}. Save it safely!`, {
+            autoClose: 8000
+          });
+        }
 
-        toast.success(`✅ Account created as ${role}! Redirecting...`);
+        toast.success(`Role ${role} set! Redirecting to login...`);
 
+        // ✅ Redirect everyone to login
         setTimeout(() => {
-          setLoading(false); // ✅ stop loading
-          if (role === "landlord") navigate("/profile");
-          else if (role === "tenant") navigate("/connect-landlord");
-        }, 1500);
+          navigate("/login");
+        }, 1800);
       } else {
-        setLoading(false);
         toast.error(data.message || "Failed to set role.");
       }
     } catch (err) {
-      setLoading(false);
       console.error("❌ Role selection error:", err);
       toast.error("Something went wrong. Please try again.");
     }
@@ -79,7 +75,6 @@ export default function ChooseRole() {
                 value="tenant"
                 checked={role === "tenant"}
                 onChange={(e) => setRole(e.target.value)}
-                disabled={loading} // ✅ disable while loading
               />
               <span>Tenant</span>
             </label>
@@ -90,16 +85,14 @@ export default function ChooseRole() {
                 value="landlord"
                 checked={role === "landlord"}
                 onChange={(e) => setRole(e.target.value)}
-                disabled={loading} // ✅ disable while loading
               />
               <span>Landlord</span>
             </label>
             <button
               type="submit"
               className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-              disabled={loading} // ✅ disable button while loading
             >
-              {loading ? "⏳ Please wait..." : "Continue"} {/* ✅ shows loading message */}
+              Continue
             </button>
           </form>
         </div>

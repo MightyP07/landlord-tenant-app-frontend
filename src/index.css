@@ -14,25 +14,26 @@ body {
 }
 
 /* Navbar */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #0044cc;
-  padding: 1rem 2rem;
+  padding: 0.5rem 2rem;
   color: white;
 }
 
-.navbar .logo {
+ .navbar .logo {
   font-weight: bold;
   font-size: 1.2rem;
-}
+} 
 
 .navbar .nav-links {
   list-style: none;
   display: flex;
   gap: 1.5rem;
-}
+} 
 
 .navbar .nav-links li a {
   color: white;

@@ -8,6 +8,7 @@ import API_BASE from "../api.js";
 export default function ConnectLandlord() {
   const { user, fetchCurrentUser } = useAuth();
   const [localUser, setLocalUser] = useState(() => {
+    // ✅ Read from localStorage first for reloads
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
@@ -22,7 +23,7 @@ export default function ConnectLandlord() {
     if (!user) fetchCurrentUser();
     else setLocalUser(user);
   }, [user]);
-
+  
   const handleConnect = async (e) => {
     e.preventDefault();
     if (!code.trim()) return setMessage("❌ Please enter a landlord code");
@@ -35,7 +36,6 @@ export default function ConnectLandlord() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localUser?.token}`, // ✅ include token
         },
         body: JSON.stringify({ landlordCode: code.trim() }),
         credentials: "include",
