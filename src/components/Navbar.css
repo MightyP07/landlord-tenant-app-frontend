@@ -57,7 +57,7 @@
 
 .navbar a {
   position: relative; /* needed for ::after */
-  color: blue;
+  /* color: blue; */
 }
 
 .navbar a::after {

@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -13,29 +13,27 @@ import ManageTenants from "./pages/ManageTenants.jsx";
 import ViewComplaints from "./pages/ViewComplaints.jsx";
 import LogComplaints from "./pages/LogComplaints.jsx";
 import InstallPrompt from "./components/InstallPrompt";
-import { useEffect } from "react";
 
-// ✅ Inner app so we can access auth state
 function AppRoutes() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
 
-  // ✅ Redirect logged-in users away from public pages to Profile
-  useEffect(() => {
-    if (!loading && user) {
-      const publicPaths = ["/", "/login", "/register"];
-      if (publicPaths.includes(window.location.pathname)) {
-        navigate("/profile", { replace: true });
-      }
-    }
-  }, [user, loading, navigate]);
+  if (loading) return null; // wait for auth context
 
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route
+        path="/"
+        element={user ? <Navigate to="/profile" replace /> : <Home />}
+      />
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/profile" replace /> : <Login />}
+      />
+      <Route
+        path="/register"
+        element={user ? <Navigate to="/profile" replace /> : <Register />}
+      />
       <Route path="/choose-role" element={<ChooseRole />} />
 
       {/* Protected: any logged-in user */}
@@ -65,7 +63,7 @@ export default function App() {
       <Router>
         <Navbar />
         <AppRoutes />
-        <InstallPrompt /> {/* Floating install button */}
+        <InstallPrompt />
       </Router>
     </AuthProvider>
   );
