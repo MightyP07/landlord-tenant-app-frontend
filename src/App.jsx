@@ -10,8 +10,9 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 import Profile from "./pages/Profile";
 import ConnectLandlord from "./pages/ConnectLandlord";
 import ManageTenants from "./pages/ManageTenants.jsx";
-import ViewComplaints from "./pages/ViewComplaints.jsx"
-import LogComplaints from "./pages/LogComplaints.jsx"
+import ViewComplaints from "./pages/ViewComplaints.jsx";
+import LogComplaints from "./pages/LogComplaints.jsx";
+import InstallPrompt from "./components/InstallPrompt";
 
 // ✅ Inner app so we can access auth state
 function AppRoutes() {
@@ -33,31 +34,26 @@ function AppRoutes() {
       {/* Protected: only tenants */}
       <Route element={<ProtectedRoute allowedRole="tenant" />}>
         <Route path="/connect-landlord" element={<ConnectLandlord />} />
+        <Route path="/complaints" element={<LogComplaints />} />
       </Route>
 
+      {/* Protected: only landlords */}
       <Route element={<ProtectedRoute allowedRole="landlord" />}>
-  <Route path="/manage-tenants" element={<ManageTenants />} />
-</Route>
-
-<Route element={<ProtectedRoute allowedRole="landlord" />}>
-  <Route path="/viewcomplaints" element={<ViewComplaints />} />
-</Route>
-
-<Route element={<ProtectedRoute allowedRole="tenant" />}>
-  <Route path="/complaints" element={<LogComplaints />} />
-</Route>
-
-
+        <Route path="/manage-tenants" element={<ManageTenants />} />
+        <Route path="/viewcomplaints" element={<ViewComplaints />} />
+      </Route>
     </Routes>
   );
 }
 
+// ✅ Final App with Navbar, Routes, and InstallPrompt floating
 export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Navbar />
         <AppRoutes />
+        <InstallPrompt /> {/* Floating install button */}
       </Router>
     </AuthProvider>
   );

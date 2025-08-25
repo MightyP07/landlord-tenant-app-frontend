@@ -57,6 +57,7 @@
 
 .navbar a {
   position: relative; /* needed for ::after */
+  color: blue;
 }
 
 .navbar a::after {
@@ -64,17 +65,18 @@
   position: absolute;
   bottom: 0;
   left: 0;
+  right: 0;
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, #00b4ff, #007bff);
+  /* background: linear-gradient(90deg, #00b4ff, #007bff); */
+  background-color: white;
   transition: width 0.3s ease;
   border-radius: 2px;
 }
 
 .navbar a:hover::after {
   width: 10%;
-  left: 0;
-  right: 0;
+  color: white;
 }
 
 
