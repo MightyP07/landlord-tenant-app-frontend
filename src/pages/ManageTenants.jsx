@@ -1,8 +1,10 @@
 // src/pages/ManageTenants.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "./manageTenants.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
+import "./manageTenants.css";
 
 export default function ManageTenants() {
   const [tenants, setTenants] = useState([]);
@@ -33,13 +35,15 @@ export default function ManageTenants() {
 
     try {
       setRemovingId(tenantId);
-      await axios.delete(`${API_BASE}/api/landlord/tenants/${tenantId}`, {
+      await axios.delete(`${API_BASE}/api/landlords/tenants/${tenantId}`, {
         withCredentials: true,
       });
+
       setTenants((prev) => prev.filter((t) => t._id !== tenantId));
+      toast.success("✅ Tenant removed successfully!");
     } catch (err) {
       console.error("❌ Remove tenant error:", err);
-      alert("Failed to remove tenant");
+      toast.error(err.response?.data?.message || "Failed to remove tenant");
     } finally {
       setRemovingId(null);
     }
@@ -51,6 +55,7 @@ export default function ManageTenants() {
 
   return (
     <div className="manage-tenants-container">
+      <ToastContainer />
       <h2>Manage Tenants</h2>
       <table>
         <thead>

@@ -1,5 +1,5 @@
 // src/pages/LogComplaint.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -19,12 +19,32 @@ const COMMON_COMPLAINTS = [
 ];
 
 export default function LogComplaint() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  const checkConnection = async () => {
+    // Optional: refetch user to ensure landlordId is valid
+    try {
+      const res = await fetch(`${API_BASE}/api/users/me`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch user");
+      setUser(data.user);
+    } catch (err) {
+      console.error("❌ User refresh error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user && !user.landlordId) {
+      toast.error("⚠️ You are not connected to a landlord. Cannot log complaints.");
+    }
+  }, [user]);
 
   if (!user) return <p>⚠️ Loading user info...</p>;
   if (!user.landlordId)
@@ -75,10 +95,11 @@ export default function LogComplaint() {
       setTitle("");
       setDescription("");
       setSelectedMulti([]);
-      setTimeout(() => navigate("/profile"), 1200);
+      navigate("/profile");
     } catch (err) {
       console.error("❌ Log complaint error:", err);
       toast.error(err.message);
+      checkConnection(); // re-validate connection
     } finally {
       setSubmitting(false);
     }
