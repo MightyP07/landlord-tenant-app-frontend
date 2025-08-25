@@ -1,13 +1,13 @@
-/* src/pages/manageTenants.css */
-
 .manage-tenants-container {
-  max-width: 500px;
+  max-width: 800px; /* ✅ increased width for table */
+  width: 90%; /* responsive on small screens */
   margin: 50px auto;
   padding: 30px 25px;
   background-color: white;
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: auto; /* ✅ allow horizontal scroll on small screens */
 }
 
 .manage-tenants-container h2 {
@@ -24,6 +24,7 @@
   border-collapse: collapse;
   font-size: 15px;
   text-align: left;
+  min-width: 600px; /* ✅ ensures table doesn’t shrink too small */
 }
 
 .manage-tenants-container th,
@@ -59,9 +60,6 @@
   color: #b91c1c;
   font-weight: 500;
 }
-
-
-/* src/pages/manageTenants.css (add this at the bottom) */
 
 /* Remove button */
 .manage-tenants-container .remove-btn {

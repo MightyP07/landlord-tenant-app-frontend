@@ -18,6 +18,7 @@ export default function Register() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -27,10 +28,12 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(formData.email)) {
       toast.error("❌ Please use a valid Gmail or Yahoo email address.");
+      setLoading(false);
       return;
     }
 
@@ -52,7 +55,6 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-
         toast.success("🎉 Registration successful! Redirecting...");
 
         // ✅ Redirect to ChooseRole
@@ -65,6 +67,8 @@ export default function Register() {
     } catch (err) {
       console.error("❌ Registration error:", err);
       toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,8 +125,8 @@ export default function Register() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            Sign Up
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Please wait..." : "Sign Up"}
           </button>
         </form>
       </div>

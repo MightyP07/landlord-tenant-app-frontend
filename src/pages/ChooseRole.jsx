@@ -7,6 +7,7 @@ import API_BASE from "../api.js";
 
 export default function ChooseRole() {
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ Track loading
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,6 +27,9 @@ export default function ChooseRole() {
       return;
     }
 
+    setLoading(true); // ✅ Start loading
+    const waitingToast = toast.info("Please wait…", { autoClose: false });
+
     try {
       const res = await fetch(`${API_BASE}/api/users/set-role/${userId}`, {
         method: "PUT",
@@ -35,12 +39,13 @@ export default function ChooseRole() {
       });
 
       const data = await res.json();
+      toast.dismiss(waitingToast); // ✅ Remove "Please wait…" toast
 
       if (res.ok) {
         // ✅ Landlord: show their special code
         if (role === "landlord" && data.user.landlordCode) {
           toast.info(`🎉 Your landlord code is: ${data.user.landlordCode}. Save it safely!`, {
-            autoClose: 8000
+            autoClose: 8000,
           });
         }
 
@@ -52,10 +57,13 @@ export default function ChooseRole() {
         }, 1800);
       } else {
         toast.error(data.message || "Failed to set role.");
+        setLoading(false); // ✅ Reset so they can retry
       }
     } catch (err) {
       console.error("❌ Role selection error:", err);
+      toast.dismiss(waitingToast);
       toast.error("Something went wrong. Please try again.");
+      setLoading(false); // ✅ Reset
     }
   };
 
@@ -75,6 +83,7 @@ export default function ChooseRole() {
                 value="tenant"
                 checked={role === "tenant"}
                 onChange={(e) => setRole(e.target.value)}
+                disabled={loading}
               />
               <span>Tenant</span>
             </label>
@@ -85,14 +94,20 @@ export default function ChooseRole() {
                 value="landlord"
                 checked={role === "landlord"}
                 onChange={(e) => setRole(e.target.value)}
+                disabled={loading}
               />
               <span>Landlord</span>
             </label>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+              disabled={loading} // ✅ prevent double click
+              className={`w-full py-2 rounded transition text-white ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              }`}
             >
-              Continue
+              {loading ? "Processing..." : "Continue"}
             </button>
           </form>
         </div>

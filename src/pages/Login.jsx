@@ -18,16 +18,19 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [showLandlordCodeInput, setShowLandlordCodeInput] = useState(false);
   const [landlordCode, setLandlordCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   // LOGIN HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(email)) {
       toast.error("❌ Please use a valid Gmail or Yahoo email address.");
+      setLoading(false);
       return;
     }
 
@@ -45,14 +48,12 @@ export default function Login() {
       setUser(data.user);
       toast.success("✅ Login successful!");
 
-      // LANDLORD CODE FLOW
       if (data.user.role === "landlord") {
         setTimeout(() => navigate("/profile"), 1000);
       } else if (data.user.role === "tenant") {
         if (data.user.landlordId) {
           setTimeout(() => navigate("/profile"), 1000);
         } else {
-          // Tenant has no landlord connected → show code input
           setShowLandlordCodeInput(true);
         }
       } else {
@@ -60,12 +61,15 @@ export default function Login() {
       }
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   // CONNECT LANDLORD CODE FOR TENANT
   const handleConnectLandlord = async () => {
     if (!landlordCode) return toast.error("❌ Please enter a landlord code.");
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
@@ -83,12 +87,15 @@ export default function Login() {
       setTimeout(() => navigate("/profile"), 1000);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   // PASSWORD RESET HANDLERS
   const handleRequestReset = async () => {
     if (!email) return toast.error("❌ Please enter your email");
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
@@ -105,12 +112,15 @@ export default function Login() {
       setResetStep(2);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleResetPassword = async () => {
     if (!email || !resetCode || !newPassword)
       return toast.error("❌ All fields are required");
+    setLoading(true);
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
@@ -131,6 +141,8 @@ export default function Login() {
       setNewPassword("");
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -182,8 +194,8 @@ export default function Login() {
               </span>
             </div>
 
-            <button type="submit" className="btn btn-primary">
-              Login
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? "Please wait..." : "Login"}
             </button>
 
             <p className="auth-footer">
@@ -209,12 +221,17 @@ export default function Login() {
             />
 
             <div className="reset-box">
-              <button onClick={handleConnectLandlord} className="btn btn-primary">
-                Connect Landlord
+              <button
+                onClick={handleConnectLandlord}
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "Please wait..." : "Connect Landlord"}
               </button>
               <button
                 onClick={() => setShowLandlordCodeInput(false)}
                 className="btn btn-secondary"
+                disabled={loading}
               >
                 Cancel
               </button>
@@ -239,10 +256,18 @@ export default function Login() {
                 />
 
                 <div className="reset-box">
-                  <button onClick={handleRequestReset} className="btn btn-primary">
-                    Send Reset Code
+                  <button
+                    onClick={handleRequestReset}
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading ? "Sending..." : "Send Reset Code"}
                   </button>
-                  <button onClick={() => setForgotMode(false)} className="btn btn-secondary">
+                  <button
+                    onClick={() => setForgotMode(false)}
+                    className="btn btn-secondary"
+                    disabled={loading}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -278,8 +303,12 @@ export default function Login() {
                 </div>
 
                 <div className="reset-box">
-                  <button onClick={handleResetPassword} className="btn btn-primary">
-                    Reset Password
+                  <button
+                    onClick={handleResetPassword}
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading ? "Resetting..." : "Reset Password"}
                   </button>
                   <button
                     onClick={() => {
@@ -290,6 +319,7 @@ export default function Login() {
                       setNewPassword("");
                     }}
                     className="btn btn-secondary"
+                    disabled={loading}
                   >
                     Cancel
                   </button>
