@@ -1,10 +1,10 @@
 /* src/pages/manageTenants.css */
 
 .manage-tenants-container {
-  max-width: 800px;
+  max-width: 500px;
   margin: 50px auto;
   padding: 30px 25px;
-  background-color: #f9f9fb;
+  background-color: white;
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
