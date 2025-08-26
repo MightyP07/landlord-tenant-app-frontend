@@ -44,7 +44,6 @@ export default function LogComplaint() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const combinedTitle = title.trim() || selectedMulti.join(", ");
     const combinedDescription = description.trim() || "No additional details";
 
@@ -54,11 +53,7 @@ export default function LogComplaint() {
     }
 
     setSubmitting(true);
-    toast.info("⏳ Logging your complaint...");
-
-    // Ensure landlordId is a string (fix mismatch issue)
-    const landlordIdToSend =
-      typeof user.landlordId === "object" ? user.landlordId._id : user.landlordId;
+    toast.info("⏳ Please wait, logging your complaint...");
 
     try {
       const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
@@ -67,7 +62,9 @@ export default function LogComplaint() {
         credentials: "include",
         body: JSON.stringify({
           tenantId: user._id,
-          landlordId: landlordIdToSend,
+          // Ensure landlordId is a string
+          landlordId:
+            typeof user.landlordId === "object" ? user.landlordId._id : user.landlordId,
           title: combinedTitle,
           description: combinedDescription,
         }),
@@ -83,7 +80,7 @@ export default function LogComplaint() {
       setTimeout(() => navigate("/profile"), 1200);
     } catch (err) {
       console.error("❌ Log complaint error:", err);
-      toast.error(err.message || "Failed to log complaint");
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -96,10 +93,7 @@ export default function LogComplaint() {
 
       <form onSubmit={handleSubmit} className="complaint-form">
         <label>Choose from common complaints:</label>
-        <select
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        >
+        <select value={title} onChange={(e) => setTitle(e.target.value)}>
           <option value="">-- Select an issue --</option>
           {COMMON_COMPLAINTS.map((c, idx) => (
             <option key={idx} value={c}>
