@@ -21,20 +21,22 @@ const COMMON_COMPLAINTS = [
 export default function LogComplaint() {
   const { user, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
-  const [localUser, setLocalUser] = useState(null);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // Always fetch the latest user on mount
+  // Always ensure we have the latest user
+  const [currentUser, setCurrentUser] = useState(null);
+
   useEffect(() => {
     const loadUser = async () => {
       setLoadingUser(true);
       await fetchCurrentUser(); // updates context & localStorage
       const storedUser = localStorage.getItem("user");
-      if (storedUser) setLocalUser(JSON.parse(storedUser));
+      if (storedUser) setCurrentUser(JSON.parse(storedUser));
       setLoadingUser(false);
     };
     loadUser();
@@ -42,14 +44,14 @@ export default function LogComplaint() {
 
   if (loadingUser) return <p>⚠️ Loading user info...</p>;
 
-  if (!localUser || localUser.role !== "tenant")
+  if (!currentUser || currentUser.role !== "tenant")
     return (
       <div className="complaint-container">
         <p>⚠️ Only tenants can log complaints.</p>
       </div>
     );
 
-  if (!localUser.landlordId)
+  if (!currentUser.landlordId)
     return (
       <div className="complaint-container">
         <p>⚠️ You are not connected to a landlord yet.</p>
@@ -66,15 +68,27 @@ export default function LogComplaint() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+
+    // Refresh user before submitting
+    await fetchCurrentUser();
+    const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+    if (!updatedUser.landlordId) {
+      toast.error("⚠️ You are not connected to a landlord.");
+      setSubmitting(false);
+      return;
+    }
+
     const combinedTitle = title.trim() || selectedMulti.join(", ");
     const combinedDescription = description.trim() || "No additional details";
 
     if (!combinedTitle) {
       toast.warn("❌ Please provide a complaint title or select an issue.");
+      setSubmitting(false);
       return;
     }
 
-    setSubmitting(true);
     toast.info("⏳ Logging your complaint...");
 
     try {
@@ -83,8 +97,8 @@ export default function LogComplaint() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          tenantId: localUser._id,
-          landlordId: localUser.landlordId,
+          tenantId: updatedUser._id,
+          landlordId: updatedUser.landlordId,
           title: combinedTitle,
           description: combinedDescription,
         }),
@@ -101,10 +115,6 @@ export default function LogComplaint() {
     } catch (err) {
       console.error("❌ Log complaint error:", err);
       toast.error(err.message || "Failed to log complaint");
-      // Optional: refresh user to re-validate connection
-      await fetchCurrentUser();
-      const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      setLocalUser(updatedUser);
     } finally {
       setSubmitting(false);
     }
