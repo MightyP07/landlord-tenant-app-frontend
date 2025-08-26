@@ -1,84 +1,121 @@
-// src/pages/ViewComplaints.jsx
-import { useEffect, useState } from "react";
+// src/pages/manageTenants.jsx
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-import "./viewcomplaints.css";
+import "./manageTenants.css";
 
-export default function ViewComplaints() {
-  const { user } = useAuth();
-  const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function ManageTenants() {
+  const { user, loading } = useAuth();
+  const [tenants, setTenants] = useState([]);
+  const [loadingTenants, setLoadingTenants] = useState(true);
+  const [error, setError] = useState("");
+  const [removingId, setRemovingId] = useState(null);
+
+  // Format connectedOn date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    if (isNaN(date)) return "N/A";
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   useEffect(() => {
-    if (!user || !user._id) return;
-
-    const fetchComplaints = async () => {
-      setLoading(true);
+    const fetchTenants = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/landlord/complaints/${user._id}`, {
+        setLoadingTenants(true);
+        const res = await fetch(`${API_BASE}/api/landlord/tenants`, {
           method: "GET",
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
         });
-
         const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to fetch tenants");
 
-        if (!res.ok) throw new Error(data.message || "Failed to fetch complaints");
-
-        // Sort newest complaints first
-        const sorted = (data.complaints || []).sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setComplaints(sorted);
+        setTenants(data.tenants);
       } catch (err) {
-        console.error("❌ Fetch complaints error:", err);
-        toast.error(err.message || "Failed to fetch complaints");
-        setComplaints([]);
+        setError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingTenants(false);
       }
     };
 
-    fetchComplaints();
+    if (user?.role === "landlord") {
+      fetchTenants();
+    }
   }, [user]);
 
-  if (!user) return <p>⚠️ Loading user info...</p>;
+  const handleRemoveTenant = async (tenantId) => {
+    if (!window.confirm("Are you sure you want to remove this tenant?")) return;
+
+    try {
+      setRemovingId(tenantId);
+      const res = await fetch(`${API_BASE}/api/landlord/tenants/${tenantId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to remove tenant");
+
+      setTenants(tenants.filter((t) => t._id !== tenantId));
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  if (loading) return <p>Loading user info...</p>;
+  if (loadingTenants) return <p>Loading tenants...</p>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div className="complaints-container">
-      <ToastContainer />
-      <h2>Tenant Complaints</h2>
+    <div className="tenants-container">
+      <h2>Manage Tenants</h2>
 
-      {loading ? (
-        <p>⏳ Loading complaints...</p>
-      ) : complaints.length === 0 ? (
-        <p>✅ No complaints yet.</p>
+      {tenants.length === 0 ? (
+        <p>No tenants found.</p>
       ) : (
-        <ul className="complaints-list">
-          {complaints.map((c) => {
-            const titles = c.title ? c.title.split(",").map((t) => t.trim()) : [];
-            return (
-              <li key={c._id} className="complaint-card">
-                <h3>Complaint Details:</h3>
-                {titles.length > 1 ? (
-                  <ul className="multi-issues-list">
-                    {titles.map((t, i) => (
-                      <li key={i}>• {t}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>{titles[0] || "No title provided"}</p>
-                )}
-                <p>{c.description || "No description provided"}</p>
-                <p className="complaint-meta">
-                  From: {c.tenantName || "Tenant"} |{" "}
-                  {c.createdAt ? new Date(c.createdAt).toLocaleString() : "Unknown date"}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+        <table className="tenant-table">
+          <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Connected On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tenants.map((tenant) => (
+              <tr key={tenant._id}>
+                <td>{tenant.firstName}</td>
+                <td>{tenant.lastName}</td>
+                <td>{tenant.email}</td>
+                <td>{formatDate(tenant.connectedOn)}</td>
+                <td>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleRemoveTenant(tenant._id);
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="btn-remove"
+                      disabled={removingId === tenant._id}
+                    >
+                      {removingId === tenant._id ? "Removing..." : "Remove"}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

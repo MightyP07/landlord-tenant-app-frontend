@@ -1,6 +1,4 @@
-/* ===== Register page (blue/white theme) ===== */
-
-/* Wrapper card (keeps your existing .auth usage) */
+/* ===== Auth Card Wrapper ===== */
 .auth {
   max-width: 420px;
   margin: 60px auto;
@@ -14,7 +12,7 @@
 .auth h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #0044cc;            /* matches navbar */
+  color: #0044cc;
   text-align: center;
   margin-bottom: 10px;
 }
@@ -26,7 +24,7 @@
 }
 
 .auth p a {
-  color: #007bff;            /* matches primary buttons */
+  color: #007bff;
   font-weight: 600;
   text-decoration: none;
 }
@@ -42,14 +40,14 @@
   gap: 14px;
 }
 
-/* First/Last name on one row (stacks on small screens) */
+/* Name row */
 .name-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 .name-row input {
-  min-width: 0;              /* prevents overflow on small screens */
+  min-width: 0;
 }
 
 /* Inputs */
@@ -70,12 +68,12 @@
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
-/* Password toggle (eye/monkey icon) */
+/* Password toggle */
 .password-wrapper {
   position: relative;
 }
 .password-wrapper input {
-  padding-right: 42px;       /* space for the icon */
+  padding-right: 42px;
 }
 .password-wrapper span {
   position: absolute;
@@ -111,38 +109,26 @@
   box-shadow: 0 6px 14px rgba(0, 85, 204, 0.22);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .auth {
-    margin: 30px 16px;
-    padding: 20px;
-  }
-  .name-row {
-    grid-template-columns: 1fr;  /* stack on small screens */
-    gap: 10px;
-  }
+/* Forgot password link */
+.forgot-link {
+  display: inline;
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
 }
-.forgot-link{
-    display: inline;
-    color: #007bff;            /* matches primary buttons */
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
+.forgot-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }
 
-.forgot-link:hover{
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-/* Reset password action buttons */
+/* Reset password buttons */
 .reset-box {
   display: flex;
-  flex-direction: column;  /* stack vertically on mobile */
+  flex-direction: column;
   gap: 12px;
   margin-top: 20px;
 }
-
 .reset-box .btn {
   padding: 12px;
   border-radius: 8px;
@@ -152,27 +138,74 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
-/* Primary (matches your login/register blue theme) */
 .reset-box .btn-primary {
   background: linear-gradient(90deg, #00b4ff, #007bff);
   color: #fff;
 }
-
 .reset-box .btn-primary:hover {
   background: linear-gradient(90deg, #0096e0, #0056b3);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
-
-/* Secondary (subtle cancel button) */
 .reset-box .btn-secondary {
   background: linear-gradient(90deg, #00b4ff, #007bff);
   color: #fff;
 }
-
 .reset-box .btn-secondary:hover {
   background-color: #f0f8ff;
   color: #0056b3;
   transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth {
+    margin: 30px 16px;
+    padding: 20px;
+  }
+  .name-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* ===== Dark Mode Overrides ===== */
+body.dark .auth {
+  background: #1e1e1e;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+}
+body.dark .auth h2 {
+  color: #ffffff;
+}
+body.dark .auth p,
+body.dark .auth p a {
+  color: #ccc;
+}
+body.dark .auth p a:hover {
+  color: #ffffff;
+}
+body.dark .auth input[type="text"],
+body.dark .auth input[type="email"],
+body.dark .auth input[type="password"] {
+  background: #2a2a2a;
+  color: #f1f1f1;
+  border: 1.5px solid #444;
+}
+body.dark .auth input:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
+}
+body.dark .password-wrapper span {
+  color: #aaa;
+}
+body.dark .auth button[type="submit"],
+body.dark .reset-box .btn-primary,
+body.dark .reset-box .btn-secondary {
+  background: linear-gradient(90deg, #007bff, #0044cc);
+  color: #fff;
+}
+body.dark .auth button[type="submit"]:hover,
+body.dark .reset-box .btn-primary:hover,
+body.dark .reset-box .btn-secondary:hover {
+  filter: brightness(1.1);
 }

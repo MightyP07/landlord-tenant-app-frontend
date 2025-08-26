@@ -84,3 +84,37 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* Remove button styling */
+.btn-remove {
+  padding: 8px 14px;
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  background: linear-gradient(90deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+}
+
+.btn-remove:disabled {
+  background: #fca5a5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Dark mode support */
+.darkMode .btn-remove {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  color: #fff;
+}
+
+.darkMode .btn-remove:hover {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+}

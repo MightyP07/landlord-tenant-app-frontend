@@ -13,6 +13,7 @@ import ManageTenants from "./pages/ManageTenants.jsx";
 import ViewComplaints from "./pages/ViewComplaints.jsx";
 import LogComplaints from "./pages/LogComplaints.jsx";
 import InstallPrompt from "./components/InstallPrompt";
+import DarkModeToggle from "./components/DarkModeToggle.jsx";
 import { useEffect } from "react";
 
 // ✅ Inner app so we can access auth state
@@ -58,7 +59,7 @@ function AppRoutes() {
   );
 }
 
-// ✅ Final App with Navbar, Routes, and InstallPrompt floating
+// ✅ Final App with Navbar, Routes, InstallPrompt, and Dark Mode Toggle
 export default function App() {
   return (
     <AuthProvider>
@@ -66,6 +67,7 @@ export default function App() {
         <Navbar />
         <AppRoutes />
         <InstallPrompt /> {/* Floating install button */}
+        <DarkModeToggle /> {/* Floating dark mode toggle */}
       </Router>
     </AuthProvider>
   );

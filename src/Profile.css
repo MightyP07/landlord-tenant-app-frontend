@@ -7,6 +7,7 @@
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   animation: fadeIn 0.5s ease-in-out;
+  color: #000;
 }
 
 /* Header */
@@ -116,49 +117,6 @@
 }
 
 /* Input for landlord code */
-/* .profile-page input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  margin: 12px 0;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: border 0.2s, box-shadow 0.2s;
-} */
-
-/* .profile-page input[type="text"]:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 6px rgba(0, 123, 255, 0.25);
-  outline: none;
-} */
-
-/* Success & error messages */
-.success-message {
-  color: #28a745;
-  font-weight: 600;
-  margin-top: 10px;
-}
-
-.error-message {
-  color: #dc3545;
-  font-weight: 600;
-  margin-top: 10px;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-
 .connect-form {
   display: flex;
   flex-direction: column;
@@ -187,7 +145,7 @@
   cursor: not-allowed;
 }
 
-
+/* Tenant table */
 .tenant-table {
   width: 100%;
   border-collapse: collapse;
@@ -208,4 +166,104 @@
 
 .tenant-table tr:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+/* Success & error messages */
+.success-message {
+  color: #28a745;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Dark Mode Overrides ===== */
+body.dark .profile-page {
+  background: #1e1e1e;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  color: #f1f1f1;
+}
+
+body.dark .profile-header h1 {
+  color: #ffffff;
+}
+
+body.dark .profile-header p,
+body.dark .profile-header .subtitle {
+  color: #ccc;
+}
+
+/* Profile info & dashboard sections */
+body.dark .profile-info,
+body.dark .dashboard-section {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #f1f1f1;
+}
+
+body.dark .profile-info h2,
+body.dark .dashboard-section h2 {
+  color: #ffffff;
+}
+
+body.dark .profile-info ul li,
+body.dark .dashboard-section ul li {
+  color: #ddd;
+}
+
+body.dark .profile-info ul li strong {
+  color: #a0c4ff;
+}
+
+/* Connect landlord form */
+body.dark .connect-input {
+  background: #333;
+  border: 1px solid #555;
+  color: #f1f1f1;
+}
+
+body.dark .connect-btn {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Buttons */
+body.dark .btn-primary {
+  background: linear-gradient(90deg, #007bff, #0044cc);
+}
+
+body.dark .btn-secondary {
+  background: #333;
+  border: 2px solid #007bff;
+  color: #fff;
+}
+
+body.dark .btn-secondary:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Messages */
+body.dark .success-message {
+  color: #28a745;
+}
+
+body.dark .error-message {
+  color: #ff6b6b;
 }

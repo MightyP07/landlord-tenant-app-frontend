@@ -1,5 +1,5 @@
 // src/pages/Profile.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
 import API_BASE from "../api.js";
@@ -10,7 +10,17 @@ export default function Profile() {
   const [landlordCode, setLandlordCode] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
+  const [wasDisconnected, setWasDisconnected] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user was previously connected and now landlordId is null, show disconnect message
+    if (user && user.role === "tenant" && !user.landlordId) {
+      setWasDisconnected(true);
+    } else {
+      setWasDisconnected(false);
+    }
+  }, [user]);
 
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
@@ -32,6 +42,7 @@ export default function Profile() {
 
       setUser(data.user); // update context with new landlord info
       setMessage("✅ Connected successfully!");
+      setWasDisconnected(false);
     } catch (err) {
       setMessage("❌ " + err.message);
     } finally {
@@ -47,6 +58,7 @@ export default function Profile() {
       connectLandlord={connectLandlord}
       connecting={connecting}
       message={message}
+      wasDisconnected={wasDisconnected}
     />
   ) : (
     <LandlordProfile user={user} navigate={navigate} />
@@ -61,6 +73,7 @@ function TenantProfile({
   connectLandlord,
   connecting,
   message,
+  wasDisconnected,
 }) {
   const navigate = useNavigate();
   return (
@@ -73,9 +86,8 @@ function TenantProfile({
 
       <div className="profile-actions">
         <button className="btn-primary" onClick={() => navigate("/complaints")}>
-  Log a Complaint
-</button>
-
+          Log a Complaint
+        </button>
         <button className="btn-secondary">View Rental Info</button>
       </div>
 
@@ -98,7 +110,11 @@ function TenantProfile({
           </ul>
         ) : (
           <>
-            <p>Not connected to a landlord yet.</p>
+            {wasDisconnected && (
+              <p className="error-message">
+                You were disconnected by your Landlord. Enter code to connect to a landlord.
+              </p>
+            )}
             <form
               className="connect-form"
               onSubmit={(e) => {
@@ -143,15 +159,15 @@ function TenantProfile({
 // ---------------- Landlord Profile ----------------
 function LandlordProfile({ user, navigate }) {
   return (
-    <div className="profile-page landlord-profile">
-      <div className="profile-header">
+    <div className="profile-page landlord-profile darkMode">
+      <div className="profile-header darkMode dark-mode">
         <h1>Landlord Dashboard</h1>
         <p>Welcome, {user.firstName} 👋</p>
         <p className="subtitle">Keep track of tenants and complaints here.</p>
       </div>
 
       <div className="profile-actions">
-        <button className="btn-primary" onClick={() => navigate ("/viewcomplaints")}>View Complaints</button>
+        <button className="btn-primary" onClick={() => navigate("/viewcomplaints")}>View Complaints</button>
         <button
           className="btn-secondary"
           onClick={() => navigate("/manage-tenants")}
