@@ -4,14 +4,12 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
+  base: "./",
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: {
-        navigateFallback: '/index.html'
-      }
-    })
-  ]
+      workbox: { navigateFallback: '/index.html' },
+    }),
+  ],
 })
