@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// src/pages/LogComplaint.jsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
@@ -18,37 +19,15 @@ const COMMON_COMPLAINTS = [
 ];
 
 export default function LogComplaint() {
-  const { fetchCurrentUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      setLoadingUser(true);
-      await fetchCurrentUser();
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) setCurrentUser(JSON.parse(storedUser));
-      setLoadingUser(false);
-    };
-    loadUser();
-  }, [fetchCurrentUser]);
-
-  if (loadingUser) return <p>⚠️ Loading user info...</p>;
-
-  if (!currentUser || currentUser.role !== "tenant")
-    return (
-      <div className="complaint-container">
-        <p>⚠️ Only tenants can log complaints.</p>
-      </div>
-    );
-
-  if (!currentUser.landlordId)
+  if (!user) return <p>⚠️ Loading user info...</p>;
+  if (!user.landlordId)
     return (
       <div className="complaint-container">
         <p>⚠️ You are not connected to a landlord yet.</p>
@@ -65,28 +44,19 @@ export default function LogComplaint() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-
-    // ✅ Refresh user before submitting
-    await fetchCurrentUser();
-    const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
-
-    if (!updatedUser.landlordId) {
-      toast.error("⚠️ You are not connected to a landlord.");
-      setSubmitting(false);
-      return;
-    }
-
     const combinedTitle = title.trim() || selectedMulti.join(", ");
     const combinedDescription = description.trim() || "No additional details";
 
     if (!combinedTitle) {
       toast.warn("❌ Please provide a complaint title or select an issue.");
-      setSubmitting(false);
       return;
     }
 
-    toast.info("⏳ Logging your complaint...");
+     const landlordIdToSend =
+    typeof user.landlordId === "object" ? user.landlordId._id : user.landlordId;
+
+    setSubmitting(true);
+    toast.info("⏳ Please wait, logging your complaint...");
 
     try {
       const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
@@ -94,8 +64,8 @@ export default function LogComplaint() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          tenantId: updatedUser._id,
-          landlordId: updatedUser.landlordId,
+          tenantId: user._id,
+          landlordId: landlordIdToSend,
           title: combinedTitle,
           description: combinedDescription,
         }),
@@ -108,10 +78,10 @@ export default function LogComplaint() {
       setTitle("");
       setDescription("");
       setSelectedMulti([]);
-      navigate("/profile");
+      setTimeout(() => navigate("/profile"), 1200);
     } catch (err) {
       console.error("❌ Log complaint error:", err);
-      toast.error(err.message || "Failed to log complaint");
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +94,10 @@ export default function LogComplaint() {
 
       <form onSubmit={handleSubmit} className="complaint-form">
         <label>Choose from common complaints:</label>
-        <select value={title} onChange={(e) => setTitle(e.target.value)}>
+        <select
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        >
           <option value="">-- Select an issue --</option>
           {COMMON_COMPLAINTS.map((c, idx) => (
             <option key={idx} value={c}>
