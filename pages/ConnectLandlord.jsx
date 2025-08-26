@@ -2,28 +2,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "./connectLandlord.css";
 import API_BASE from "../api.js";
+import "./connectLandlord.css";
 
 export default function ConnectLandlord() {
   const { user, fetchCurrentUser } = useAuth();
-  const [localUser, setLocalUser] = useState(() => {
-    // ✅ Read from localStorage first for reloads
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-
+  const [localUser, setLocalUser] = useState(null);
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [connecting, setConnecting] = useState(false);
   const navigate = useNavigate();
 
-  // Sync with context after mount
+  // Load user on mount
   useEffect(() => {
-    if (!user) fetchCurrentUser();
-    else setLocalUser(user);
-  }, [user]);
-  
+    const loadUser = async () => {
+      if (!user) {
+        await fetchCurrentUser();
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) setLocalUser(JSON.parse(storedUser));
+      } else {
+        setLocalUser(user);
+      }
+    };
+    loadUser();
+  }, [user, fetchCurrentUser]);
+
   const handleConnect = async (e) => {
     e.preventDefault();
     if (!code.trim()) return setMessage("❌ Please enter a landlord code");
@@ -34,23 +37,25 @@ export default function ConnectLandlord() {
     try {
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landlordCode: code.trim() }),
         credentials: "include",
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        await fetchCurrentUser(); // update context & localStorage
-        setLocalUser(JSON.parse(localStorage.getItem("user"))); // sync localUser
-        setMessage("✅ Landlord connected successfully!");
-        setTimeout(() => navigate("/profile"), 1200);
-      } else {
+      if (!res.ok) {
         setMessage(data?.message || "❌ Invalid code");
+        setConnecting(false);
+        return;
       }
+
+      // ✅ After success, refresh user context and local state
+      const updatedUser = await fetchCurrentUser(); // fetchCurrentUser should return user
+      setLocalUser(updatedUser);
+
+      setMessage("✅ Landlord connected successfully!");
+      setTimeout(() => navigate("/profile"), 1200);
     } catch (err) {
       console.error("❌ Connect landlord error:", err);
       setMessage("Server error. Please try again.");
@@ -59,15 +64,9 @@ export default function ConnectLandlord() {
     }
   };
 
-  if (!localUser) {
-    return (
-      <div className="connectlandlord-container">
-        <p className="warning-text">⚠️ Loading user info...</p>
-      </div>
-    );
-  }
+  if (!localUser) return <p>⚠️ Loading user info...</p>;
 
-  // Already connected or landlord
+  // Already connected or not a tenant
   if (localUser.role !== "tenant" || localUser.landlordId) {
     return (
       <div className="connectlandlord-container">
@@ -100,12 +99,20 @@ export default function ConnectLandlord() {
           </button>
         </form>
 
-        <button type="button" onClick={() => navigate("/profile")} className="btn-secondary">
+        <button
+          type="button"
+          onClick={() => navigate("/profile")}
+          className="btn-secondary"
+        >
           Skip for now
         </button>
 
         {message && (
-          <p className={`message ${message.startsWith("✅") ? "success-text" : "error-text"}`}>
+          <p
+            className={`message ${
+              message.startsWith("✅") ? "success-text" : "error-text"
+            }`}
+          >
             {message}
           </p>
         )}
