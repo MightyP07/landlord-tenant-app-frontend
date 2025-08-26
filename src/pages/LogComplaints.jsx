@@ -1,4 +1,3 @@
-// src/pages/LogComplaint.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -29,7 +28,6 @@ export default function LogComplaint() {
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // Load latest user on mount
   useEffect(() => {
     const loadUser = async () => {
       setLoadingUser(true);
@@ -69,7 +67,7 @@ export default function LogComplaint() {
     e.preventDefault();
     setSubmitting(true);
 
-    // ✅ Ensure we have the latest user info
+    // ✅ Refresh user before submitting
     await fetchCurrentUser();
     const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
