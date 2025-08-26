@@ -35,7 +35,7 @@ export default function ManageTenants() {
 
     try {
       setRemovingId(tenantId);
-      await axios.delete(`${API_BASE}/api/landlords/tenants/${tenantId}`, {
+      await axios.delete(`${API_BASE}/api/landlord/tenants/${tenantId}`, {
         withCredentials: true,
       });
 
