@@ -19,22 +19,21 @@ const COMMON_COMPLAINTS = [
 ];
 
 export default function LogComplaint() {
-  const { user, fetchCurrentUser } = useAuth();
+  const { fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
 
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [loadingUser, setLoadingUser] = useState(true);
 
-  // Always ensure we have the latest user
-  const [currentUser, setCurrentUser] = useState(null);
-
+  // Load latest user on mount
   useEffect(() => {
     const loadUser = async () => {
       setLoadingUser(true);
-      await fetchCurrentUser(); // updates context & localStorage
+      await fetchCurrentUser();
       const storedUser = localStorage.getItem("user");
       if (storedUser) setCurrentUser(JSON.parse(storedUser));
       setLoadingUser(false);
@@ -70,7 +69,7 @@ export default function LogComplaint() {
     e.preventDefault();
     setSubmitting(true);
 
-    // Refresh user before submitting
+    // ✅ Ensure we have the latest user info
     await fetchCurrentUser();
     const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
