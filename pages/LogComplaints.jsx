@@ -44,6 +44,7 @@ export default function LogComplaint() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const combinedTitle = title.trim() || selectedMulti.join(", ");
     const combinedDescription = description.trim() || "No additional details";
 
@@ -53,7 +54,11 @@ export default function LogComplaint() {
     }
 
     setSubmitting(true);
-    toast.info("⏳ Please wait, logging your complaint...");
+    toast.info("⏳ Logging your complaint...");
+
+    // Ensure landlordId is a string (fix mismatch issue)
+    const landlordIdToSend =
+      typeof user.landlordId === "object" ? user.landlordId._id : user.landlordId;
 
     try {
       const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
@@ -62,7 +67,7 @@ export default function LogComplaint() {
         credentials: "include",
         body: JSON.stringify({
           tenantId: user._id,
-          landlordId: user.landlordId,
+          landlordId: landlordIdToSend,
           title: combinedTitle,
           description: combinedDescription,
         }),
@@ -78,7 +83,7 @@ export default function LogComplaint() {
       setTimeout(() => navigate("/profile"), 1200);
     } catch (err) {
       console.error("❌ Log complaint error:", err);
-      toast.error(err.message);
+      toast.error(err.message || "Failed to log complaint");
     } finally {
       setSubmitting(false);
     }
