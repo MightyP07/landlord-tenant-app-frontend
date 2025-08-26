@@ -1,4 +1,3 @@
-// src/pages/ConnectLandlord.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -18,7 +17,7 @@ export default function ConnectLandlord() {
   const [message, setMessage] = useState("");
   const [connecting, setConnecting] = useState(false);
 
-  // Sync with context after mount
+  // Sync with context/localStorage after mount
   useEffect(() => {
     const syncUser = async () => {
       if (!user) await fetchCurrentUser();
@@ -51,14 +50,12 @@ export default function ConnectLandlord() {
         return;
       }
 
-      // ✅ Refresh and sync latest user before redirect
+      // ✅ Refresh user after connecting
       await fetchCurrentUser();
-      const updatedUser = localStorage.getItem("user");
-      if (updatedUser) setCurrentUser(JSON.parse(updatedUser));
+      const updatedUser = JSON.parse(localStorage.getItem("user"));
+      setCurrentUser(updatedUser);
 
       setMessage("✅ Landlord connected successfully!");
-
-      // Small delay to show success message
       setTimeout(() => navigate("/profile"), 1000);
     } catch (err) {
       console.error("❌ Connect landlord error:", err);
