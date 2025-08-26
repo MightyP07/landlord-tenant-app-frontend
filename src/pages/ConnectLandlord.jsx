@@ -7,8 +7,9 @@ import API_BASE from "../api.js";
 
 export default function ConnectLandlord() {
   const { user, fetchCurrentUser } = useAuth();
-  const [localUser, setLocalUser] = useState(() => {
-    // ✅ Read from localStorage first for reloads
+  const navigate = useNavigate();
+
+  const [currentUser, setCurrentUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
@@ -16,14 +17,17 @@ export default function ConnectLandlord() {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [connecting, setConnecting] = useState(false);
-  const navigate = useNavigate();
 
   // Sync with context after mount
   useEffect(() => {
-    if (!user) fetchCurrentUser();
-    else setLocalUser(user);
-  }, [user]);
-  
+    const syncUser = async () => {
+      if (!user) await fetchCurrentUser();
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) setCurrentUser(JSON.parse(storedUser));
+    };
+    syncUser();
+  }, [user, fetchCurrentUser]);
+
   const handleConnect = async (e) => {
     e.preventDefault();
     if (!code.trim()) return setMessage("❌ Please enter a landlord code");
@@ -34,23 +38,28 @@ export default function ConnectLandlord() {
     try {
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landlordCode: code.trim() }),
         credentials: "include",
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        await fetchCurrentUser(); // update context & localStorage
-        setLocalUser(JSON.parse(localStorage.getItem("user"))); // sync localUser
-        setMessage("✅ Landlord connected successfully!");
-        setTimeout(() => navigate("/profile"), 1200);
-      } else {
+      if (!res.ok) {
         setMessage(data?.message || "❌ Invalid code");
+        setConnecting(false);
+        return;
       }
+
+      // ✅ Refresh and sync latest user before redirect
+      await fetchCurrentUser();
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) setCurrentUser(JSON.parse(updatedUser));
+
+      setMessage("✅ Landlord connected successfully!");
+
+      // Small delay to show success message
+      setTimeout(() => navigate("/profile"), 1000);
     } catch (err) {
       console.error("❌ Connect landlord error:", err);
       setMessage("Server error. Please try again.");
@@ -59,7 +68,7 @@ export default function ConnectLandlord() {
     }
   };
 
-  if (!localUser) {
+  if (!currentUser) {
     return (
       <div className="connectlandlord-container">
         <p className="warning-text">⚠️ Loading user info...</p>
@@ -67,8 +76,8 @@ export default function ConnectLandlord() {
     );
   }
 
-  // Already connected or landlord
-  if (localUser.role !== "tenant" || localUser.landlordId) {
+  // Already connected or not a tenant
+  if (currentUser.role !== "tenant" || currentUser.landlordId) {
     return (
       <div className="connectlandlord-container">
         <div className="connectlandlord-box">
