@@ -1,0 +1,300 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Navbar */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #0044cc;
+  padding: 0.5rem 2rem;
+  color: white;
+}
+
+ .navbar .logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+} 
+
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+} 
+
+.navbar .nav-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar .nav-links li a:hover {
+  text-decoration: underline;
+}
+
+/* Home */
+.home {
+  padding: 2rem;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.hero button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.hero button:hover {
+  background-color: #0056b3;
+  /* transition: all 0.5s ease; */
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+}
+
+.auth {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.auth h2 {
+  text-align: center;
+  color: #007bff;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.auth form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Add this new style for the name row inside the form */
+.name-row {
+  display: flex;
+  gap: 10px; /* space between the inputs */
+}
+
+.name-row input {
+  flex: 1; /* make both inputs equal width */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.auth label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.auth input {
+  padding: 10px 15px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.auth button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #007bff, #00b4ff);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.auth button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #00a2ff, #005dc1);
+}
+
+.loginButton {
+  color: blue;
+}
+
+.loginButton:hover {
+  color: darkblue;
+}
+
+.loginButt {
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+/* Forgot Password Container */
+.forgotPasswordContainer {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+.forgotPasswordContainer h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.forgotPasswordContainer p {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.forgotPasswordContainer .text-red-500 {
+  color: #e63946;
+}
+
+.forgotPasswordContainer .text-green-600 {
+  color: #2a9d8f;
+}
+
+.forgotPasswordContainer input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.forgotPasswordContainer input:focus {
+  border-color: #3498db;
+}
+
+.forgotPasswordContainer button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* Primary action buttons */
+.forgotPasswordContainer button.reset-code,
+.forgotPasswordContainer button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.forgotPasswordContainer button.reset-code:hover,
+.forgotPasswordContainer button[type="submit"]:hover {
+  background-color: #2980b9;
+}
+
+/* Cancel buttons */
+.forgotPasswordContainer .cancel-button {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.forgotPasswordContainer .cancel-button:hover {
+  background-color: #bdbdbd;
+}
+
+.cancelButton {
+  width: 50%;
+  border: 1px solid #d1d5db; /* gray-300 */
+  background: white;
+  padding: 0.5rem 0;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  /* margin-top: 1rem; */
+}
+
+.reset-box{
+    display: grid;
+    gap: 0.5rem;
+}
+
+.forgot-email{
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  color: blue;
+}
+
+.text-blue-600 {
+  color: blue;
+}
+
+.reset-code {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+};
+
+/* Add spacing between reset code and new password inputs */
+.auth-input + .auth-input {
+  margin-top: 1rem; /* 16px spacing */
+}
+
+/* Add spacing between input fields */
+.auth-input {
+  display: block;
+  margin-bottom: 0.5rem; /* 24px spacing between each input */
+}
