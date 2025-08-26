@@ -19,35 +19,37 @@ const COMMON_COMPLAINTS = [
 ];
 
 export default function LogComplaint() {
-  const { user, setUser } = useAuth();
+  const { user, fetchCurrentUser } = useAuth();
   const navigate = useNavigate();
+  const [localUser, setLocalUser] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  const checkConnection = async () => {
-    // Optional: refetch user to ensure landlordId is valid
-    try {
-      const res = await fetch(`${API_BASE}/api/users/me`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch user");
-      setUser(data.user);
-    } catch (err) {
-      console.error("❌ User refresh error:", err);
-    }
-  };
-
+  // Always fetch the latest user on mount
   useEffect(() => {
-    if (user && !user.landlordId) {
-      toast.error("⚠️ You are not connected to a landlord. Cannot log complaints.");
-    }
-  }, [user]);
+    const loadUser = async () => {
+      setLoadingUser(true);
+      await fetchCurrentUser(); // updates context & localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) setLocalUser(JSON.parse(storedUser));
+      setLoadingUser(false);
+    };
+    loadUser();
+  }, [fetchCurrentUser]);
 
-  if (!user) return <p>⚠️ Loading user info...</p>;
-  if (!user.landlordId)
+  if (loadingUser) return <p>⚠️ Loading user info...</p>;
+
+  if (!localUser || localUser.role !== "tenant")
+    return (
+      <div className="complaint-container">
+        <p>⚠️ Only tenants can log complaints.</p>
+      </div>
+    );
+
+  if (!localUser.landlordId)
     return (
       <div className="complaint-container">
         <p>⚠️ You are not connected to a landlord yet.</p>
@@ -73,7 +75,7 @@ export default function LogComplaint() {
     }
 
     setSubmitting(true);
-    toast.info("⏳ Please wait, logging your complaint...");
+    toast.info("⏳ Logging your complaint...");
 
     try {
       const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
@@ -81,8 +83,8 @@ export default function LogComplaint() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          tenantId: user._id,
-          landlordId: user.landlordId,
+          tenantId: localUser._id,
+          landlordId: localUser.landlordId,
           title: combinedTitle,
           description: combinedDescription,
         }),
@@ -98,8 +100,11 @@ export default function LogComplaint() {
       navigate("/profile");
     } catch (err) {
       console.error("❌ Log complaint error:", err);
-      toast.error(err.message);
-      checkConnection(); // re-validate connection
+      toast.error(err.message || "Failed to log complaint");
+      // Optional: refresh user to re-validate connection
+      await fetchCurrentUser();
+      const updatedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      setLocalUser(updatedUser);
     } finally {
       setSubmitting(false);
     }
@@ -112,10 +117,7 @@ export default function LogComplaint() {
 
       <form onSubmit={handleSubmit} className="complaint-form">
         <label>Choose from common complaints:</label>
-        <select
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        >
+        <select value={title} onChange={(e) => setTitle(e.target.value)}>
           <option value="">-- Select an issue --</option>
           {COMMON_COMPLAINTS.map((c, idx) => (
             <option key={idx} value={c}>
