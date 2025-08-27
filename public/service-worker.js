@@ -1,31 +1,31 @@
-const CACHE_NAME = "ltapp-cache-" + new Date().getTime();
+// Change this manually when you release a new version
+const CACHE_NAME = "ltapp-cache-v1";
 const urlsToCache = ["/", "/index.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // take control immediately
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
+      // delete old caches
       const keys = await caches.keys();
       await Promise.all(
         keys.map((key) => key !== CACHE_NAME && caches.delete(key))
       );
 
-      // Notify only once: send message only if this SW is brand new
-      if (self.registration.navigationPreload) {
-        const clientsArr = await self.clients.matchAll({
-          type: "window",
-          includeUncontrolled: true,
-        });
-        clientsArr.forEach((client) => {
-          client.postMessage({ type: "NEW_VERSION" });
-        });
-      }
+      // notify clients that a new version is active
+      const clientsArr = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      clientsArr.forEach((client) => {
+        client.postMessage({ type: "NEW_VERSION" });
+      });
     })()
   );
   self.clients.claim();
