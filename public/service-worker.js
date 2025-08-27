@@ -1,26 +1,24 @@
-const CACHE_NAME = "ltapp-cache-v1"; // increment this on new deployments
-const urlsToCache = [
-  "/",
+const CACHE_NAME = "ltapp-cache-v1"; // increment on each deployment
+const PRECACHE_URLS = [
+  "/",              // index.html
   "/index.html",
-  "/main.js",   // add your main JS
-  "/style.css", // add your CSS files
-  // add any other static assets here
+  "/main.js",       // your main JS
+  "/style.css",     // your CSS
+  // add any other static files you want pre-cached
 ];
 
-// Install: cache files
+// Install: pre-cache essential files
 self.addEventListener("install", (event) => {
-  console.log("Service Worker: Installed");
+  console.log("Service Worker: Installing");
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("Service Worker: Caching Files");
-      return cache.addAll(urlsToCache);
-    }).then(() => self.skipWaiting()) // activate immediately
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate: remove old caches
+// Activate: clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker: Activated");
+  console.log("Service Worker: Activating");
   event.waitUntil(
     caches.keys().then((cacheNames) =>
       Promise.all(
@@ -33,19 +31,38 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-  return self.clients.claim(); // take control immediately
+  return self.clients.claim();
 });
 
-// Fetch: serve cached files first, then network
+// Fetch: respond with cache first, then network, and dynamically cache new requests
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse;
+
+      return fetch(event.request)
+        .then((networkResponse) => {
+          // Only cache GET requests
+          if (!event.request.url.startsWith("http") || event.request.method !== "GET") {
+            return networkResponse;
+          }
+
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        .catch(() => {
+          // Optional fallback if network fails
+          if (event.request.destination === "document") {
+            return caches.match("/index.html");
+          }
+        });
     })
   );
 });
 
-// Optional: listen for update messages from the app
+// Optional: listen for messages to skip waiting
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") {
     self.skipWaiting();
