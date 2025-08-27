@@ -1,22 +1,15 @@
-// Auto-generate a unique cache name based on the current timestamp
+// Auto-generate a unique cache name
 const CACHE_NAME = `ltapp-cache-${new Date().getTime()}`;
+const PRECACHE_URLS = ["/", "/index.html"]; // only index.html is precached
 
-const PRECACHE_URLS = [
-  "/",              
-  "/index.html",
-  "/main.js",       
-  "/style.css",     
-  // Add any other static files here
-];
-
-// Install: pre-cache essential files
+// Install: pre-cache index.html
 self.addEventListener("install", (event) => {
   console.log("Service Worker: Installing");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
       .then(() => self.skipWaiting())
       .then(() => {
-        // Notify clients that a new version is available
+        // Notify clients a new version is available
         self.clients.matchAll().then(clients => {
           clients.forEach(client => client.postMessage({ type: 'NEW_VERSION' }));
         });
@@ -24,7 +17,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activate: clean up old caches
+// Activate: remove old caches
 self.addEventListener("activate", (event) => {
   console.log("Service Worker: Activating");
   event.waitUntil(
@@ -42,7 +35,7 @@ self.addEventListener("activate", (event) => {
   return self.clients.claim();
 });
 
-// Fetch: respond with cache first, then network, and dynamically cache new requests
+// Fetch: cache-first for everything, dynamically cache JS/CSS/images
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -50,6 +43,7 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
+          // Only cache GET requests
           if (!event.request.url.startsWith("http") || event.request.method !== "GET") {
             return networkResponse;
           }
@@ -60,6 +54,7 @@ self.addEventListener("fetch", (event) => {
           });
         })
         .catch(() => {
+          // Fallback to index.html for navigation requests
           if (event.request.destination === "document") {
             return caches.match("/index.html");
           }
@@ -68,7 +63,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// Listen for messages to skip waiting
+// Listen for skipWaiting messages
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") {
     self.skipWaiting();
