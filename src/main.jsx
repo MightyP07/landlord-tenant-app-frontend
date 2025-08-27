@@ -10,22 +10,24 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
-// Register SW
+// Service Worker setup
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  navigator.serviceWorker
-    .register("/service-worker.js")
-    .then((reg) => {
-      console.log("[App] Service worker registered:", reg);
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then((reg) => {
+        console.log("[App] Service worker registered:", reg);
+      })
+      .catch((err) =>
+        console.log("[App] Service worker registration failed:", err)
+      );
+  });
 
-      // Listen for messages from SW
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data?.type === "NEW_VERSION") {
-          console.log("[App] New version detected. Reloading once...");
-          window.location.reload();
-        }
-      });
-    })
-    .catch((err) =>
-      console.log("[App] Service worker registration failed:", err)
-    );
+  // listen for "NEW_VERSION" message
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "NEW_VERSION") {
+      console.log("[App] New version detected, reloading once...");
+      window.location.reload();
+    }
+  });
 }
