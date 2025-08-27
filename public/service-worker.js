@@ -5,7 +5,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // activate new SW immediately
 });
 
 self.addEventListener("activate", (event) => {
@@ -14,11 +14,10 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(keys.map((key) => key !== CACHE_NAME && caches.delete(key)));
 
-      // Tell all clients that a new version is active
+      // Tell clients a new version is available
       const clientsArr = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       clientsArr.forEach((client) => {
         client.postMessage({ type: "NEW_VERSION" });
-        client.navigate(client.url); // force reload
       });
     })()
   );
