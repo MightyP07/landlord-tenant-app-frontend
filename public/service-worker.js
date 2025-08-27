@@ -1,5 +1,5 @@
 // ✅ Bump this version manually each deployment
-const CACHE_NAME = "ltapp-cache-v3";
+const CACHE_NAME = "ltapp-cache-v4";
 
 const urlsToCache = ["/", "/index.html"];
 
