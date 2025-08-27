@@ -1,10 +1,12 @@
-const CACHE_NAME = "ltapp-cache-v2"; // increment on each deployment
+// Auto-generate a unique cache name based on the current timestamp
+const CACHE_NAME = `ltapp-cache-${new Date().getTime()}`;
+
 const PRECACHE_URLS = [
-  "/",              // index.html
+  "/",              
   "/index.html",
-  "/main.js",       // your main JS
-  "/style.css",     // your CSS
-  // add any other static files you want pre-cached
+  "/main.js",       
+  "/style.css",     
+  // add other static files here
 ];
 
 // Install: pre-cache essential files
@@ -42,7 +44,6 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
-          // Only cache GET requests
           if (!event.request.url.startsWith("http") || event.request.method !== "GET") {
             return networkResponse;
           }
@@ -53,7 +54,6 @@ self.addEventListener("fetch", (event) => {
           });
         })
         .catch(() => {
-          // Optional fallback if network fails
           if (event.request.destination === "document") {
             return caches.match("/index.html");
           }
