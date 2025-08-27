@@ -1,4 +1,4 @@
-const CACHE_NAME = "ltapp-cache-v1"; // increment on each deployment
+const CACHE_NAME = "ltapp-cache-v2"; // increment on each deployment
 const PRECACHE_URLS = [
   "/",              // index.html
   "/index.html",
