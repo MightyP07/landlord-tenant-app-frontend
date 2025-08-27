@@ -15,6 +15,12 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
       .then(() => self.skipWaiting())
+      .then(() => {
+        // Notify clients a new version is available
+        self.clients.matchAll().then(clients => {
+          clients.forEach(client => client.postMessage({ type: 'NEW_VERSION' }));
+        });
+      })
   );
 });
 
@@ -62,7 +68,7 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// Optional: listen for messages to skip waiting
+// Listen for messages to skip waiting
 self.addEventListener("message", (event) => {
   if (event.data === "skipWaiting") {
     self.skipWaiting();
