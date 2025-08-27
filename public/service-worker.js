@@ -1,5 +1,5 @@
 // Change this manually on each big deploy
-const CACHE_NAME = "ltapp-cache-v5";
+const CACHE_NAME = "ltapp-cache-v6";
 const urlsToCache = ["/", "/index.html"];
 
 // Install: cache essential files
