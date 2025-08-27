@@ -1,5 +1,5 @@
 // Change this manually when you release a new version
-const CACHE_NAME = "ltapp-cache-v1";
+const CACHE_NAME = "ltapp-cache-v2";
 const urlsToCache = ["/", "/index.html"];
 
 self.addEventListener("install", (event) => {
