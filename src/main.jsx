@@ -2,10 +2,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './styles/global.css';
 import './index.css';
-
-// Force Update Overlay component
 import { useState, useEffect } from 'react';
 
+// Force Update Overlay component
 function ForceUpdateOverlay() {
   const [show, setShow] = useState(false);
 
@@ -64,7 +63,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>
 );
 
-// Register service worker only in production
+// Register service worker in production
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
