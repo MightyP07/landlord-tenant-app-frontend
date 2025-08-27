@@ -1,71 +1,37 @@
-// Auto-generate a unique cache name
-const CACHE_NAME = `ltapp-cache-${new Date().getTime()}`;
-const PRECACHE_URLS = ["/", "/index.html"]; // only index.html is precached
+const CACHE_NAME = "ltapp-cache-" + new Date().getTime();
+const urlsToCache = ["/", "/index.html"];
 
-// Install: pre-cache index.html
+// Install new service worker and cache essentials
 self.addEventListener("install", (event) => {
-  console.log("Service Worker: Installing");
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
-      .then(() => {
-        // Notify clients a new version is available
-        self.clients.matchAll().then(clients => {
-          clients.forEach(client => client.postMessage({ type: 'NEW_VERSION' }));
-        });
-      })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
+  self.skipWaiting(); // take control immediately
 });
 
-// Activate: remove old caches
+// Activate new service worker, clean old caches, and refresh clients
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker: Activating");
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log("Service Worker: Removing old cache", cache);
-            return caches.delete(cache);
-          }
-        })
-      )
-    )
+    (async () => {
+      // Delete old caches
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => key !== CACHE_NAME && caches.delete(key)));
+
+      // Reload all open app tabs so they use the new version
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      clients.forEach((client) => client.navigate(client.url));
+    })()
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
-// Fetch: cache-first for everything, dynamically cache JS/CSS/images
+// Fetch handler with cache fallback
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          // Only cache GET requests
-          if (!event.request.url.startsWith("http") || event.request.method !== "GET") {
-            return networkResponse;
-          }
-
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        })
-        .catch(() => {
-          // Fallback to index.html for navigation requests
-          if (event.request.destination === "document") {
-            return caches.match("/index.html");
-          }
-        });
-    })
+    caches.match(event.request).then(
+      (response) =>
+        response ||
+        fetch(event.request).catch(() => caches.match("/index.html"))
+    )
   );
-});
-
-// Listen for skipWaiting messages
-self.addEventListener("message", (event) => {
-  if (event.data === "skipWaiting") {
-    self.skipWaiting();
-  }
 });
