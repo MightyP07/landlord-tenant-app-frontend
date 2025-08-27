@@ -1,24 +1,30 @@
-// Cache name includes timestamp to force new cache each build
-const CACHE_NAME = "ltapp-cache-" + new Date().getTime();
+// ✅ Bump this version manually each deployment
+const CACHE_NAME = "ltapp-cache-v3";
+
 const urlsToCache = ["/", "/index.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
-  self.skipWaiting(); // immediately activate
+  self.skipWaiting(); // activate immediately
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      // clear old caches
+      // ✅ Delete old caches not matching CACHE_NAME
       const keys = await caches.keys();
       await Promise.all(
-        keys.map((key) => key !== CACHE_NAME && caches.delete(key))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log("[SW] Deleting old cache:", key);
+            return caches.delete(key);
+          }
+        })
       );
 
-      // notify clients that new version is active
+      // ✅ Notify all clients about new version
       const clientsArr = await self.clients.matchAll({
         type: "window",
         includeUncontrolled: true,
