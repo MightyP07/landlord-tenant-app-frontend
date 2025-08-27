@@ -6,7 +6,7 @@ const PRECACHE_URLS = [
   "/index.html",
   "/main.js",       
   "/style.css",     
-  // add other static files here
+  // Add any other static files here
 ];
 
 // Install: pre-cache essential files
@@ -16,7 +16,7 @@ self.addEventListener("install", (event) => {
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
       .then(() => self.skipWaiting())
       .then(() => {
-        // Notify clients a new version is available
+        // Notify clients that a new version is available
         self.clients.matchAll().then(clients => {
           clients.forEach(client => client.postMessage({ type: 'NEW_VERSION' }));
         });
