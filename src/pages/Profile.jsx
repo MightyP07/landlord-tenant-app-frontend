@@ -112,7 +112,7 @@ function TenantProfile({
           <>
             {wasDisconnected && (
               <p className="error-message">
-                You were disconnected by your Landlord. Enter code to connect to a landlord.
+                You are not connected to a Landlord. Enter code to connect to a landlord.
               </p>
             )}
             <form
