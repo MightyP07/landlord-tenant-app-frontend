@@ -32,10 +32,13 @@ export default function ConnectLandlord() {
     setMessage("");
 
     try {
+      const stored = localStorage.getItem("user");
+    const token = stored ? JSON.parse(stored)?.token : null;
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ landlordCode: code.trim() }),
         credentials: "include",

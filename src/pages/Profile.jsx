@@ -14,7 +14,6 @@ export default function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If user was previously connected and now landlordId is null, show disconnect message
     if (user && user.role === "tenant" && !user.landlordId) {
       setWasDisconnected(true);
     } else {
@@ -30,17 +29,23 @@ export default function Profile() {
       setConnecting(true);
       setMessage("");
 
+      const stored = localStorage.getItem("user");
+      const token = stored ? JSON.parse(stored)?.token : null;
+
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenantId: user._id, landlordCode }),
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ landlordCode }), // ✅ no tenantId here
         credentials: "include",
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to connect");
+      if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
 
-      setUser(data.user); // update context with new landlord info
+      setUser(data.user);
       setMessage("✅ Connected successfully!");
       setWasDisconnected(false);
     } catch (err) {
@@ -112,7 +117,7 @@ function TenantProfile({
           <>
             {wasDisconnected && (
               <p className="error-message">
-                You are not connected to a Landlord. Enter code to connect to a landlord.
+                You were disconnected by your Landlord. Enter code to connect to a landlord.
               </p>
             )}
             <form
@@ -167,7 +172,12 @@ function LandlordProfile({ user, navigate }) {
       </div>
 
       <div className="profile-actions">
-        <button className="btn-primary" onClick={() => navigate("/viewcomplaints")}>View Complaints</button>
+        <button
+          className="btn-primary"
+          onClick={() => navigate("/viewcomplaints")}
+        >
+          View Complaints
+        </button>
         <button
           className="btn-secondary"
           onClick={() => navigate("/manage-tenants")}
