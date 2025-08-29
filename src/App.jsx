@@ -15,6 +15,8 @@ import LogComplaints from "./pages/LogComplaints.jsx";
 import InstallPrompt from "./components/InstallPrompt";
 import DarkModeToggle from "./components/DarkModeToggle.jsx";
 import { useEffect } from "react";
+import UploadReceipts from "./pages/UploadReceipts.jsx";
+import ViewReceipts from "./pages/ViewReceipts.jsx";
 
 // ✅ Inner app so we can access auth state
 function AppRoutes() {
@@ -54,6 +56,20 @@ function AppRoutes() {
       <Route element={<ProtectedRoute allowedRole="landlord" />}>
         <Route path="/manage-tenants" element={<ManageTenants />} />
         <Route path="/viewcomplaints" element={<ViewComplaints />} />
+      </Route>
+
+      {/* Protected: only tenants */}
+      <Route element={<ProtectedRoute allowedRole="tenant" />}>
+        <Route path="/connect-landlord" element={<ConnectLandlord />} />
+        <Route path="/complaints" element={<LogComplaints />} />
+        <Route path="/upload-receipts" element={<UploadReceipts />} />  {/* NEW */}
+      </Route>
+
+      {/* Protected: only landlords */}
+      <Route element={<ProtectedRoute allowedRole="landlord" />}>
+        <Route path="/manage-tenants" element={<ManageTenants />} />
+        <Route path="/viewcomplaints" element={<ViewComplaints />} />
+        <Route path="/view-receipts" element={<ViewReceipts />} />  {/* NEW */}
       </Route>
     </Routes>
   );

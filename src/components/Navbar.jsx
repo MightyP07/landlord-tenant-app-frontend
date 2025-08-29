@@ -44,6 +44,7 @@ export default function Navbar() {
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a complaint</Link>
+          <Link to="/upload-receipts" onClick={() => setMenuOpen(false)}>Upload Receipts</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );
@@ -54,6 +55,7 @@ export default function Navbar() {
         <>
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/viewcomplaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
+          <Link to="/view-receipts" onClick={() => setMenuOpen(false)}>View Receipts</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );

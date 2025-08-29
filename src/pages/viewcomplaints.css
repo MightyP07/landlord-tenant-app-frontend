@@ -1,66 +1,105 @@
 .complaints-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #f9faff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
-  color: #1e293b;
 }
 
 .complaints-container h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #1d4ed8;
+  color: #0d47a1;
+  margin-bottom: 1.5rem;
 }
 
 .complaints-list {
   list-style: none;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 
 .complaint-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  color: #1e293b;
+  background-color: white;
+  border: 1px solid #cce0ff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .complaint-card h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-}
-
-.complaint-card p {
-  margin: 5px 0;
+  margin-top: 0;
+  color: #0d47a1;
 }
 
 .complaint-meta {
-  font-size: 12px;
+  font-size: 0.85rem;
   color: #555;
-  font-style: italic;
+  margin-top: 0.5rem;
 }
 
 .multi-issues-list {
-  margin: 5px 0;
-  padding-left: 20px;
   list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
 }
 
-/* ===== Dark Mode Overrides ===== */
+.reminder-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Hide native time input but keep it in flow */
+.reminder-wrapper input[type="time"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pick Time button */
+.pick-time-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #007BFF;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #007BFF;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pick-time-btn:hover {
+  background-color: #007BFF;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Set Reminder button */
+.set-reminder-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  background: #007BFF;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.set-reminder-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+/* Dark Mode */
 body.dark .complaints-container {
   background-color: #1e1e1e;
   color: #f1f1f1;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-}
-
-body.dark .complaints-container h2 {
-  color: #60a5fa;
 }
 
 body.dark .complaint-card {
@@ -79,4 +118,15 @@ body.dark .complaint-meta {
 
 body.dark .multi-issues-list {
   color: #ddd;
+}
+
+body.dark .pick-time-btn {
+  background-color: #2a2a2a;
+  color: #60a5fa;
+  border-color: #555;
+}
+
+body.dark .pick-time-btn:hover {
+  background-color: #60a5fa;
+  color: #fff;
 }
