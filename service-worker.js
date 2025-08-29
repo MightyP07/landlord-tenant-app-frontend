@@ -1,5 +1,5 @@
 // Auto versioned cache
-const CACHE_NAME = `ltapp-cache-v${Date.now()}`;
+const CACHE_NAME = 'ltapp-cache-v8';
 
 // Basic URLs to cache
 let urlsToCache = ["/", "/index.html"];
