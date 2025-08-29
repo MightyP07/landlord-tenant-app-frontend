@@ -33,7 +33,7 @@ const DarkModeToggle = () => {
         onChange={toggleTheme}
       />
       <label htmlFor="darkSwitch" className="toggle-label">
-        <span className="toggle-ball">{darkMode ? "☀️" : "🌙 "}</span>
+        <span className="toggle-ball">{darkMode ? "☀️" : "🌙"}</span>
       </label>
     </div>
   );

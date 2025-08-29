@@ -12,7 +12,6 @@ body {
   background-color: #f9f9f9;
   color: #333;
 }
-
 /* src/index.css or App.css */
 
 :root {
@@ -69,19 +68,20 @@ body {
   text-align: center;
 }
 
-.hero h1 {
+.hero.darkmode h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: #222;
 }
 
-.hero p {
+.hero.darkmode p {
   font-size: 1.1rem;
   margin-bottom: 2rem;
   color: #555;
 }
 
 .hero button {
+  margin-top: 2rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   border: none;
