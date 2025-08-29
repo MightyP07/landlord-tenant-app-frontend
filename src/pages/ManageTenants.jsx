@@ -1,4 +1,3 @@
-// src/pages/manageTenants.jsx
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import API_BASE from "../api.js";
@@ -73,49 +72,51 @@ export default function ManageTenants() {
   if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div className="tenants-container">
+    <div className="manage-tenants-container">
       <h2>Manage Tenants</h2>
 
       {tenants.length === 0 ? (
         <p>No tenants found.</p>
       ) : (
-        <table className="tenant-table">
-          <thead>
-            <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
-              <th>Connected On</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tenants.map((tenant) => (
-              <tr key={tenant._id}>
-                <td>{tenant.firstName}</td>
-                <td>{tenant.lastName}</td>
-                <td>{tenant.email}</td>
-                <td>{formatDate(tenant.connectedOn)}</td>
-                <td>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handleRemoveTenant(tenant._id);
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      className="btn-remove"
-                      disabled={removingId === tenant._id}
-                    >
-                      {removingId === tenant._id ? "Removing..." : "Remove"}
-                    </button>
-                  </form>
-                </td>
+        <div className="table-wrapper">
+          <table className="tenant-table">
+            <thead>
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Connected On</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tenants.map((tenant) => (
+                <tr key={tenant._id}>
+                  <td>{tenant.firstName}</td>
+                  <td>{tenant.lastName}</td>
+                  <td>{tenant.email}</td>
+                  <td>{formatDate(tenant.connectedOn)}</td>
+                  <td>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleRemoveTenant(tenant._id);
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        className="btn-remove"
+                        disabled={removingId === tenant._id}
+                      >
+                        {removingId === tenant._id ? "Removing..." : "Remove"}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
