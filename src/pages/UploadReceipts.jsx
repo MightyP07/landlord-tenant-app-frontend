@@ -1,50 +1,60 @@
 // src/pages/UploadReceipts.jsx
 import { useState } from "react";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import API_BASE from "../api.js";
-import "./UploadReceipts.css";
+import { toast } from "react-toastify"; // ✅ no ToastContainer import
+import "./uploadReceipts.css";
 
 export default function UploadReceipts() {
+  const { token } = useAuth();
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
-  const handleSubmit = async (e) => {
+  const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return setMessage("Please select a file.");
 
-    const formData = new FormData();
-    formData.append("receipt", file);
+    if (!file) return toast.error("⚠️ Please select a file first.");
+    if (!token) return toast.error("❌ Authentication failed. Please log in again.");
 
     try {
-      setLoading(true);
-      setMessage("");
-      await axios.post(`${API_BASE}/api/receipts/upload`, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("receipt", file);
+
+      const res = await fetch(`${API_BASE}/api/receipts/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
-      setMessage("✅ Receipt uploaded successfully!");
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed.");
+
+      toast.success("✅ Receipt uploaded successfully!");
       setFile(null);
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Upload failed. Try again.");
+      toast.error(`❌ ${err.message}`);
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
   return (
-    <div className="upload-card">
-      <h1 className="upload-title">Upload Receipt</h1>
-      <form onSubmit={handleSubmit} className="upload-form">
-        <input type="file" onChange={handleFileChange} className="upload-input" />
-        <button type="submit" className="upload-btn" disabled={loading}>
-          {loading ? "Uploading..." : "Upload"}
+    <div className="upload-receipts-container">
+      <h2>Upload Payment Receipt</h2>
+      <form onSubmit={handleUpload} className="upload-form">
+        <input
+          type="file"
+          accept="image/*,application/pdf"
+          onChange={handleFileChange}
+        />
+        <button type="submit" disabled={uploading}>
+          {uploading ? "Uploading..." : "Upload"}
         </button>
       </form>
-      {message && <p className="upload-message">{message}</p>}
     </div>
   );
 }

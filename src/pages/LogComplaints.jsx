@@ -19,12 +19,13 @@ const COMMON_COMPLAINTS = [
 ];
 
 export default function LogComplaint() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  
 
   if (!user) return <p>⚠️ Loading user info...</p>;
   if (!user.landlordId)
@@ -59,17 +60,20 @@ export default function LogComplaint() {
     toast.info("⏳ Please wait, logging your complaint...");
 
     try {
-      const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          tenantId: user._id,
-          landlordId: landlordIdToSend,
-          title: combinedTitle,
-          description: combinedDescription,
-        }),
-      });
+const res = await fetch(`${API_BASE}/api/tenants/complaints`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`, // ✅ send token, no cookies
+  },
+  body: JSON.stringify({
+    tenantId: user._id,
+    landlordId: landlordIdToSend,
+    title: combinedTitle,
+    description: combinedDescription,
+  }),
+});
+
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to log complaint");

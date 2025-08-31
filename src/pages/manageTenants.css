@@ -1,13 +1,12 @@
 .manage-tenants-container {
-  max-width: 800px; /* ✅ increased width for table */
-  width: 90%; /* responsive on small screens */
+  max-width: 900px;
+  width: 95%;
   margin: 50px auto;
   padding: 30px 25px;
   background-color: white;
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow-x: auto; /* ✅ allow horizontal scroll on small screens */
 }
 
 .manage-tenants-container h2 {
@@ -18,71 +17,43 @@
   color: #1e293b;
 }
 
+/* ✅ Scroll wrapper */
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 400px; /* scroll vertically if too many tenants */
+  border-radius: 10px;
+}
+
 /* Table styling */
-.manage-tenants-container table {
+.tenant-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
   text-align: left;
-  min-width: 600px; /* ✅ ensures table doesn’t shrink too small */
+  min-width: 700px; /* ensure proper column width */
 }
 
-.manage-tenants-container th,
-.manage-tenants-container td {
+.tenant-table th,
+.tenant-table td {
   padding: 12px 15px;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.manage-tenants-container th {
+.tenant-table th {
   background-color: #2563eb;
   color: white;
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
-.manage-tenants-container tr:nth-child(even) {
+.tenant-table tr:nth-child(even) {
   background-color: #f1f5f9;
 }
 
-.manage-tenants-container tr:hover {
+.tenant-table tr:hover {
   background-color: #dbeafe;
-}
-
-/* No tenants / error message */
-.manage-tenants-container p {
-  text-align: center;
-  font-size: 16px;
-  margin-top: 20px;
-  color: #334155;
-}
-
-/* Error text */
-.manage-tenants-container .error {
-  color: #b91c1c;
-  font-weight: 500;
-}
-
-/* Remove button */
-.manage-tenants-container .remove-btn {
-  padding: 6px 12px;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.manage-tenants-container .remove-btn:hover {
-  background-color: #b91c1c;
-  transform: translateY(-1px);
-}
-
-.manage-tenants-container .remove-btn:disabled {
-  background-color: #fca5a5;
-  cursor: not-allowed;
-  transform: none;
 }
 
 /* Remove button styling */
@@ -109,12 +80,41 @@
   transform: none;
 }
 
-/* Dark mode support */
-.darkMode .btn-remove {
-  background: linear-gradient(90deg, #f87171, #ef4444);
-  color: #fff;
+/* ---------------------- */
+/* 🌙 Dark Mode Styles */
+body.dark .manage-tenants-container {
+  background: #1e1e1e;
+  color: #f1f1f1;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
-.darkMode .btn-remove:hover {
-  background: linear-gradient(90deg, #ef4444, #b91c1c);
+body.dark .manage-tenants-container h2 {
+  color: #f9fafb;
+}
+
+body.dark .tenant-table th,
+body.dark .tenant-table td {
+  border-bottom: 1px solid #444;
+}
+
+body.dark .tenant-table th {
+  background: #333;
+  color: #f9fafb;
+}
+
+body.dark .tenant-table tr:nth-child(even) {
+  background: #2a2a2a;
+}
+
+body.dark .tenant-table tr:hover {
+  background: #374151;
+}
+
+/* Dark mode button */
+body.dark .btn-remove {
+  background: linear-gradient(90deg, #b91c1c, #7f1d1d);
+}
+
+body.dark .btn-remove:hover {
+  background: linear-gradient(90deg, #dc2626, #991b1b);
 }

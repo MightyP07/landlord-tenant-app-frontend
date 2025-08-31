@@ -1,56 +1,75 @@
-.upload-card {
-  max-width: 400px;
+/* src/pages/uploadReceipts.css */
+
+.upload-receipts-container {
+  max-width: 500px;
   margin: 2rem auto;
   padding: 2rem;
-  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--bg-color);
+  transition: background 0.3s, color 0.3s;
 }
 
-.upload-title {
-  font-size: 1.75rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #0f172a;
+.upload-receipts-container h2 {
   text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .upload-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
-.upload-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+.upload-form input[type="file"] {
+  padding: 0.6rem;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: #f8f8f8;
+  background: var(--input-bg);
+  color: var(--text-color);
+  transition: border 0.2s, background 0.3s;
 }
 
-.upload-btn {
-  padding: 0.75rem;
-  background: #3b82f6;
-  color: #fff;
-  font-weight: bold;
+.upload-form input[type="file"]:hover {
+  border-color: #007bff;
+}
+
+.upload-form button {
+  padding: 0.7rem;
   border: none;
   border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: #007bff;
+  color: white;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.3s;
 }
 
-.upload-btn:hover {
-  background: #2563eb;
+.upload-form button:hover {
+  background: #0056b3;
 }
 
-.upload-btn:disabled {
-  opacity: 0.6;
+.upload-form button:disabled {
+  background: #888;
   cursor: not-allowed;
 }
 
-.upload-message {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.95rem;
-  color: #0f172a;
+/* 🌞 Light mode (default) */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #222;
+  --input-bg: #f9f9f9;
+  --border-color: #ddd;
+}
+
+/* 🌙 Dark mode */
+.dark .upload-receipts-container {
+  --bg-color: #1e1e1e;
+  --text-color: #f1f1f1;
+  --input-bg: #2b2b2b;
+  --border-color: #444;
 }

@@ -9,7 +9,6 @@ export default function LandlordProfile() {
     const fetchUser = async () => {
       try {
         const res = await fetch("https://landlord-tenant-app.onrender.com/api/users/me", {
-          credentials: "include",
         });
         if (!res.ok) throw new Error("Not authenticated");
         const data = await res.json();
@@ -25,7 +24,6 @@ export default function LandlordProfile() {
   const handleLogout = async () => {
     await fetch("https://landlord-tenant-app.onrender.com/api/users/logout", {
       method: "POST",
-      credentials: "include",
     });
     navigate("/login");
   };

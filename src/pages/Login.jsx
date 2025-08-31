@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -8,7 +7,7 @@ import "../styles/login.css";
 import API_BASE from "../api.js";
 
 export default function Login() {
-  const { setUser } = useAuth();
+  const { updateAuth } = useAuth(); // ✅ use updateAuth to store user + token
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +21,7 @@ export default function Login() {
 
   const navigate = useNavigate();
 
-  // LOGIN HANDLER
+  // -------------------- LOGIN HANDLER --------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,14 +37,14 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid credentials");
 
-      setUser(data.user);
+      // ✅ store user + token in context + localStorage
+      updateAuth(data.user, data.token);
       toast.success("✅ Login successful!");
 
       if (data.user.role === "landlord") {
@@ -66,23 +65,28 @@ export default function Login() {
     }
   };
 
-  // CONNECT LANDLORD CODE FOR TENANT
+  // -------------------- TENANT CONNECT LANDLORD --------------------
   const handleConnectLandlord = async () => {
     if (!landlordCode) return toast.error("❌ Please enter a landlord code.");
     setLoading(true);
 
     try {
+      const stored = localStorage.getItem("auth");
+      const token = stored ? JSON.parse(stored)?.token : null;
+
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ landlordCode }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid code");
 
-      setUser(data.user);
+      updateAuth(data.user, data.token); // ✅ update user + token
       toast.success("✅ Landlord connected successfully!");
       setTimeout(() => navigate("/profile"), 1000);
     } catch (err) {
@@ -92,7 +96,7 @@ export default function Login() {
     }
   };
 
-  // PASSWORD RESET HANDLERS
+  // -------------------- PASSWORD RESET --------------------
   const handleRequestReset = async () => {
     if (!email) return toast.error("❌ Please enter your email");
     setLoading(true);
@@ -101,7 +105,6 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ email }),
       });
 
@@ -126,7 +129,6 @@ export default function Login() {
       const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ email, code: resetCode, newPassword }),
       });
 
@@ -146,6 +148,7 @@ export default function Login() {
     }
   };
 
+  // -------------------- RENDER --------------------
   return (
     <section className="auth">
       <div className="auth-container">

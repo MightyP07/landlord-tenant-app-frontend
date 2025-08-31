@@ -34,7 +34,6 @@ export default function ChooseRole() {
       const res = await fetch(`${API_BASE}/api/users/set-role/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ role }),
       });
 

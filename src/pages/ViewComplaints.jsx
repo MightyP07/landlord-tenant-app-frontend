@@ -4,11 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-import { requestPermission, scheduleNotification, cancelNotification } from "../utils/notification.js";
+import {
+  requestPermission,
+  scheduleNotification,
+  cancelNotification,
+} from "../utils/notification.js";
 import "./viewcomplaints.css";
 
 export default function ViewComplaints() {
-  const { user } = useAuth();
+  const { user, token } = useAuth(); // ✅ fixed: get both user & token
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reminderTimes, setReminderTimes] = useState({});
@@ -26,15 +30,32 @@ export default function ViewComplaints() {
 
     const fetchComplaints = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/landlord/complaints/${user._id}`, {
-          method: "GET",
-          credentials: "include",
-        });
+        if (!token) {
+          toast.error("❌ Unauthorized. Please log in again.");
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch(
+          `${API_BASE}/api/landlord/complaints/${user._id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Failed to fetch complaints");
-        setComplaints((data.complaints || []).sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        ));
+        if (!res.ok)
+          throw new Error(data.message || "Failed to fetch complaints");
+
+        setComplaints(
+          (data.complaints || []).sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
+        );
       } catch (err) {
         console.error("❌ Fetch complaints error:", err);
         toast.error(err.message);
@@ -44,7 +65,7 @@ export default function ViewComplaints() {
     };
 
     fetchComplaints();
-  }, [user]);
+  }, [user, token]);
 
   // Reschedule saved notifications on load
   useEffect(() => {
@@ -52,14 +73,14 @@ export default function ViewComplaints() {
 
     Object.entries(reminderTimes).forEach(([id, time]) => {
       if (time) {
-        const complaint = complaints.find(c => c._id === id);
+        const complaint = complaints.find((c) => c._id === id);
         if (complaint) scheduleNotification(id, complaint.title, time);
       }
     });
   }, [complaints, reminderTimes]);
 
   const handleReminderChange = (complaintId, value) => {
-    setReminderTimes(prev => {
+    setReminderTimes((prev) => {
       const updated = { ...prev, [complaintId]: value };
       localStorage.setItem("reminderTimes", JSON.stringify(updated));
       return updated;
@@ -83,7 +104,7 @@ export default function ViewComplaints() {
 
   const handleCancelReminder = (complaintId, title) => {
     cancelNotification(complaintId);
-    setReminderTimes(prev => {
+    setReminderTimes((prev) => {
       const updated = { ...prev, [complaintId]: "" };
       localStorage.setItem("reminderTimes", JSON.stringify(updated));
       return updated;
@@ -92,7 +113,7 @@ export default function ViewComplaints() {
   };
 
   const handleCancelAll = () => {
-    Object.keys(reminderTimes).forEach(id => cancelNotification(id));
+    Object.keys(reminderTimes).forEach((id) => cancelNotification(id));
     setReminderTimes({});
     localStorage.removeItem("reminderTimes");
     toast.info("❌ All reminders cancelled");
@@ -106,7 +127,7 @@ export default function ViewComplaints() {
 
   return (
     <div className="complaints-container">
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <h2>Tenant Complaints</h2>
       {loading ? (
         <p>⏳ Loading complaints...</p>
@@ -115,28 +136,35 @@ export default function ViewComplaints() {
       ) : (
         <>
           <ul className="complaints-list">
-            {complaints.map(c => {
-              const titles = c.title.split(",").map(t => t.trim());
+            {complaints.map((c) => {
+              const titles = c.title.split(",").map((t) => t.trim());
               const complaintTitle = c.title;
               return (
                 <li key={c._id} className="complaint-card">
                   <h3>Complaint Details:</h3>
                   {titles.length > 1 ? (
                     <ul className="multi-issues-list">
-                      {titles.map((t, i) => <li key={i}>• {t}</li>)}
+                      {titles.map((t, i) => (
+                        <li key={i}>• {t}</li>
+                      ))}
                     </ul>
-                  ) : <p>{c.title}</p>}
+                  ) : (
+                    <p>{c.title}</p>
+                  )}
                   <p>{c.description}</p>
                   <p className="complaint-meta">
-                    From: {c.tenantName || "Tenant"} | {new Date(c.createdAt).toLocaleString()}
+                    From: {c.tenantName || "Tenant"} |{" "}
+                    {new Date(c.createdAt).toLocaleString()}
                   </p>
 
                   <div className="reminder-wrapper">
                     <input
                       type="time"
-                      ref={el => inputRefs.current[c._id] = el}
+                      ref={(el) => (inputRefs.current[c._id] = el)}
                       value={reminderTimes[c._id] || ""}
-                      onChange={(e) => handleReminderChange(c._id, e.target.value)}
+                      onChange={(e) =>
+                        handleReminderChange(c._id, e.target.value)
+                      }
                       style={{ display: "none" }} // hide native input
                     />
 
@@ -167,7 +195,7 @@ export default function ViewComplaints() {
             })}
           </ul>
 
-          {Object.values(reminderTimes).some(time => time) && (
+          {Object.values(reminderTimes).some((time) => time) && (
             <button
               className="set-reminder-btn"
               style={{ background: "#ff4d4f", marginTop: "1rem" }}

@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
@@ -6,7 +5,7 @@ import API_BASE from "../api.js";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
-  const { user, loading, setUser } = useAuth();
+  const { user, token, loading, setAuth } = useAuth();
   const [landlordCode, setLandlordCode] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
@@ -29,23 +28,20 @@ export default function Profile() {
       setConnecting(true);
       setMessage("");
 
-      const stored = localStorage.getItem("user");
-      const token = stored ? JSON.parse(stored)?.token : null;
-
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify({ landlordCode }), // ✅ no tenantId here
-        credentials: "include",
+        body: JSON.stringify({ landlordCode }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
 
-      setUser(data.user);
+      // ✅ Update both user + keep token
+      setAuth(data.user, data.token || token);
       setMessage("✅ Connected successfully!");
       setWasDisconnected(false);
     } catch (err) {

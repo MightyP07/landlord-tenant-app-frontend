@@ -1,61 +1,57 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useState } from "react";
-import axios from "axios";
 import API_BASE from "../api.js";
-
-axios.defaults.withCredentials = true;
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // ✅ Load user immediately from localStorage
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+  const [auth, setAuth] = useState(() => {
+    const stored = localStorage.getItem("auth");
+    return stored ? JSON.parse(stored) : { user: null, token: null };
   });
 
-  // ✅ We no longer need loading for initial fetch since we trust localStorage
   const loading = false;
-  // Optional: manual refresh from backend
+
+  const user = auth.user;
+  const token = auth.token;
+
+  // Update both user + token
+  const updateAuth = (userData, tokenData) => {
+    const newAuth = { user: userData, token: tokenData ?? auth.token };
+    setAuth(newAuth);
+
+    if (newAuth.user && newAuth.token) {
+      localStorage.setItem("auth", JSON.stringify(newAuth));
+    } else {
+      localStorage.removeItem("auth");
+    }
+  };
+
+  const setUser = (newUser) => updateAuth(newUser, auth.token);
+
   const fetchCurrentUser = async () => {
+    if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/api/users/me`, {
-        method: "GET",
-        credentials: "include",
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
       if (res.ok && data.user) {
-        setUser(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        updateAuth(data.user, token);
       }
     } catch (err) {
       console.error("❌ Fetch current user error:", err);
-      // do NOT clear localStorage on error
     }
   };
 
-  // ✅ Wrapper to update state + localStorage
-  const updateUser = (userData) => {
-    setUser(userData);
-    if (userData) localStorage.setItem("user", JSON.stringify(userData));
-    else localStorage.removeItem("user");
-  };
+const logout = () => {
+  localStorage.removeItem("auth");   // clear storage
+  setAuth({ user: null, token: null }); // clear state
+};
 
-  // ✅ Logout helper
-  const logout = async () => {
-    try {
-      await axios.post(`${API_BASE}/api/auth/logout`);
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      updateUser(null);
-    }
-  };
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser: updateUser, fetchCurrentUser, logout, loading }}
+      value={{ user, token, setUser, updateAuth, fetchCurrentUser, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

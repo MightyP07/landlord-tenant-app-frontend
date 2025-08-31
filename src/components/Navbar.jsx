@@ -9,6 +9,7 @@ import "./Navbar.css";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, setUser } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -20,7 +21,7 @@ export default function Navbar() {
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE}/api/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${API_BASE}/api/auth/logout`);
       setUser(null);
       navigate("/login");
     } catch (err) {

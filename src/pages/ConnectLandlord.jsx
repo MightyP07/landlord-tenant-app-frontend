@@ -9,7 +9,7 @@ export default function ConnectLandlord() {
   const { user, fetchCurrentUser } = useAuth();
   const [localUser, setLocalUser] = useState(() => {
     // ✅ Read from localStorage first for reloads
-    const storedUser = localStorage.getItem("user");
+    const storedUser = localStorage.getItem("auth");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
@@ -32,7 +32,7 @@ export default function ConnectLandlord() {
     setMessage("");
 
     try {
-      const stored = localStorage.getItem("user");
+      const stored = localStorage.getItem("auth");
     const token = stored ? JSON.parse(stored)?.token : null;
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
@@ -41,14 +41,13 @@ export default function ConnectLandlord() {
            ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ landlordCode: code.trim() }),
-        credentials: "include",
       });
 
       const data = await res.json();
 
       if (res.ok) {
         await fetchCurrentUser(); // update context & localStorage
-        setLocalUser(JSON.parse(localStorage.getItem("user"))); // sync localUser
+        setLocalUser(JSON.parse(localStorage.getItem("auth"))); // sync localUser
         setMessage("✅ Landlord connected successfully!");
         setTimeout(() => navigate("/profile"), 1200);
       } else {
