@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import API_BASE from "../api.js";
 import { toast } from "react-toastify"; // ✅ no ToastContainer import
-import "./uploadReceipts.css";
+import "./UploadReceipts.css";
 
 export default function UploadReceipts() {
   const { token } = useAuth();
