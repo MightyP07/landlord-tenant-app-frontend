@@ -1,7 +1,7 @@
 // service-worker.js
 
 // ===== Cache Setup =====
-const CACHE_NAME = 'ltapp-cache-v10';
+const CACHE_NAME = 'ltapp-cache-v12';
 let urlsToCache = ["/", "/index.html"];
 
 // Install event: cache assets
