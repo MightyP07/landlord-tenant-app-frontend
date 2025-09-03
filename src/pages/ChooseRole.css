@@ -1,0 +1,75 @@
+/* src/pages/ChooseRole.css */
+
+/* Container */
+.auth {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Centered card */
+.auth .flex {
+  background: var(--bg-page);
+  transition: background 0.3s, color 0.3s;
+}
+
+.auth .flex > div {
+  background: var(--card-bg);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Title */
+.auth h2 {
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+
+/* Radio buttons */
+.auth input[type="radio"] {
+  accent-color: #007bff;
+}
+
+/* Radio label text */
+.auth label span {
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+
+/* Button */
+.auth button {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  transition: background 0.3s, color 0.3s;
+}
+
+.auth button:hover:not(:disabled) {
+  background: var(--btn-hover);
+}
+
+.auth button:disabled {
+  background: #888;
+  cursor: not-allowed;
+}
+
+/* Light mode variables */
+:root {
+  --bg-page: #f3f4f6; /* gray-100 */
+  --card-bg: #ffffff;  /* white card */
+  --text-color: #111827; /* gray-900 */
+  --btn-bg: #3b82f6; /* blue-500 */
+  --btn-hover: #2563eb; /* blue-600 */
+  --btn-text: #ffffff;
+}
+
+/* Dark mode */
+.dark :root,
+.dark .auth {
+  --bg-page: #1e1e1e;
+  --card-bg: #2b2b2b;
+  --text-color: #f1f1f1;
+  --btn-bg: #3b82f6;
+  --btn-hover: #2563eb;
+  --btn-text: #ffffff;
+}

@@ -7,12 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 import "./ViewReceipts.css";
 import { useAuth } from "../context/AuthContext";
 
-
 export default function ViewReceipts() {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
-
 
   useEffect(() => {
     const fetchReceipts = async () => {
@@ -26,9 +24,7 @@ export default function ViewReceipts() {
         }
 
         const res = await axios.get(`${API_BASE}/api/receipts/all`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (res.status === 403) {
@@ -48,7 +44,7 @@ export default function ViewReceipts() {
     fetchReceipts();
   }, []);
 
-  const handleDownload = (id) => {
+  const handleDownload = async (id, filename) => {
     try {
       const stored = localStorage.getItem("auth");
       const token = stored ? JSON.parse(stored)?.token : null;
@@ -58,14 +54,29 @@ export default function ViewReceipts() {
         return;
       }
 
-      toast.success("Starting download...");
-      window.open(
-        `${API_BASE}/api/receipts/download/${id}?token=${token}`,
-        "_blank"
-      );
+      toast.info("Downloading...");
+
+      const res = await fetch(`${API_BASE}/api/receipts/download/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to download receipt.");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "receipt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("✅ Receipt downloaded!");
     } catch (err) {
       console.error("❌ Download error:", err);
-      toast.error("Failed to download receipt.");
+      toast.error(err.message || "Failed to download receipt.");
     }
   };
 
@@ -93,12 +104,11 @@ export default function ViewReceipts() {
                   <td>
                     {r.user.firstName} {r.user.lastName}
                   </td>
-                  {/* Changed to show originalName */}
                   <td>{r.originalName}</td>
                   <td>{new Date(r.uploadedAt).toLocaleString()}</td>
                   <td>
                     <button
-                      onClick={() => handleDownload(r._id)}
+                      onClick={() => handleDownload(r._id, r.originalName)}
                       className="download-btn"
                     >
                       Download

@@ -37,6 +37,38 @@
   border-color: #007bff;
 }
 
+/* 🎨 Style the "Choose File" button */
+.upload-form input[type="file"]::file-selector-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.upload-form input[type="file"]::file-selector-button:hover {
+  background: #0056b3;
+}
+
+/* Old WebKit fallback */
+.upload-form input[type="file"]::-webkit-file-upload-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.upload-form input[type="file"]::-webkit-file-upload-button:hover {
+  background: #0056b3;
+}
+
 .upload-form button {
   padding: 0.7rem;
   border: none;

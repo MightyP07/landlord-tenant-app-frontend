@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
+import "./ChooseRole.css";
 
 export default function ChooseRole() {
   const [role, setRole] = useState("");

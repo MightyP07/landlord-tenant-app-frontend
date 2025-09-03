@@ -1,74 +1,83 @@
 /* src/pages/ViewReceipts.css */
 
-/* Container card */
 .receipts-card {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 24px;
-  background-color: #ffffff; /* White background */
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--bg-color);
+  transition: background 0.3s, color 0.3s;
 }
 
-/* Title */
 .receipts-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #1e40af; /* Blue */
   text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
-/* Loading and empty states */
 .receipts-loading,
 .receipts-empty {
   text-align: center;
-  font-size: 16px;
-  color: #334155; /* Dark gray/blue */
+  color: var(--text-color);
+  font-size: 1rem;
 }
 
-/* Table wrapper for horizontal scroll on small screens */
 .receipts-table-wrapper {
   overflow-x: auto;
 }
 
-/* Table styles */
 .receipts-table {
   width: 100%;
   border-collapse: collapse;
+  background: var(--table-bg);
+  color: var(--text-color);
 }
 
 .receipts-table th,
 .receipts-table td {
-  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  padding: 0.8rem;
   text-align: left;
-  border-bottom: 1px solid #cbd5e1; /* Light gray */
-  color: #1e293b; /* Dark blue/gray */
 }
 
 .receipts-table th {
-  background-color: #e0e7ff; /* Light blue header */
+  background: var(--header-bg);
   font-weight: 600;
 }
 
-/* Hover effect on rows */
-.receipts-table tbody tr:hover {
-  background-color: #f0f5ff; /* Very light blue */
-}
-
-/* Download button */
 .download-btn {
-  background-color: #1e40af; /* Blue */
-  color: #ffffff; /* White text */
-  padding: 6px 14px;
+  padding: 0.5rem 0.9rem;
   border: none;
   border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #007bff;
+  color: white;
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
+  transition: background 0.3s;
 }
 
 .download-btn:hover {
-  background-color: #4338ca; /* Slightly lighter blue on hover */
+  background: #0056b3;
+}
+
+/* 🌞 Light mode (default) */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #222;
+  --table-bg: #f9f9f9;
+  --header-bg: #f1f1f1;
+  --border-color: #ddd;
+}
+
+/* 🌙 Dark mode */
+.dark .receipts-card {
+  --bg-color: #1e1e1e;
+  --text-color: #f1f1f1;
+  --table-bg: #2b2b2b;
+  --header-bg: #333;
+  --border-color: #444;
 }

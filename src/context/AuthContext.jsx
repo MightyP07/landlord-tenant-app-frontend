@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   const user = auth.user;
   const token = auth.token;
 
-  // Update both user + token
   const updateAuth = (userData, tokenData) => {
     const newAuth = { user: userData, token: tokenData ?? auth.token };
     setAuth(newAuth);
@@ -43,15 +42,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-const logout = () => {
-  localStorage.removeItem("auth");   // clear storage
-  setAuth({ user: null, token: null }); // clear state
-};
+  const logout = () => {
+    localStorage.removeItem("auth");
+    setAuth({ user: null, token: null });
+  };
 
+  // ✅ Debug log
+  console.log("AuthContext value:", {
+    user,
+    token,
+    setUser,
+    updateAuth,
+    fetchCurrentUser,
+    logout,
+    setAuth,
+    loading,
+  });
 
   return (
     <AuthContext.Provider
-      value={{ user, token, setUser, updateAuth, fetchCurrentUser, logout, loading }}
+      value={{ user, token, setUser, updateAuth, fetchCurrentUser, logout, setAuth, loading }}
     >
       {children}
     </AuthContext.Provider>

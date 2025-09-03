@@ -5,7 +5,7 @@ import API_BASE from "../api.js";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
-  const { user, token, loading, setAuth } = useAuth();
+  const { user, token, loading, updateAuth } = useAuth();
   const [landlordCode, setLandlordCode] = useState("");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
@@ -40,8 +40,8 @@ export default function Profile() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
 
-      // ✅ Update both user + keep token
-      setAuth(data.user, data.token || token);
+      updateAuth(data.user, token);
+
       setMessage("✅ Connected successfully!");
       setWasDisconnected(false);
     } catch (err) {

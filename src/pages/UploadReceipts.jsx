@@ -34,7 +34,10 @@ export default function UploadReceipts() {
       if (!res.ok) throw new Error(data.message || "Upload failed.");
 
       toast.success("✅ Receipt uploaded successfully!");
+
+      // ✅ Clear input and reset file state
       setFile(null);
+      document.getElementById("receiptInput").value = "";
     } catch (err) {
       toast.error(`❌ ${err.message}`);
     } finally {
@@ -47,6 +50,7 @@ export default function UploadReceipts() {
       <h2>Upload Payment Receipt</h2>
       <form onSubmit={handleUpload} className="upload-form">
         <input
+          id="receiptInput" // ✅ added ID for clearing
           type="file"
           accept="image/*,application/pdf"
           onChange={handleFileChange}
