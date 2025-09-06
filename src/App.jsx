@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import Navbar from "./components/Navbar";
@@ -18,16 +17,16 @@ import { useEffect } from "react";
 import UploadReceipts from "./pages/UploadReceipts.jsx";
 import ViewReceipts from "./pages/ViewReceipts.jsx";
 
-// ✅ Toastify
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// ✅ Inner app so we can access auth state
+// 🚧 Import Under Construction
+import UnderConstruction from "../src/components/UnderConstruction.jsx";
+
 function AppRoutes() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ Redirect logged-in users away from public pages to Profile
   useEffect(() => {
     if (!loading && user) {
       const publicPaths = ["/", "/login", "/register"];
@@ -54,29 +53,37 @@ function AppRoutes() {
       <Route element={<ProtectedRoute allowedRole="tenant" />}>
         <Route path="/connect-landlord" element={<ConnectLandlord />} />
         <Route path="/complaints" element={<LogComplaints />} />
-        <Route path="/upload-receipts" element={<UploadReceipts />} /> {/* NEW */}
+        <Route path="/upload-receipts" element={<UploadReceipts />} />
       </Route>
 
       {/* Protected: only landlords */}
       <Route element={<ProtectedRoute allowedRole="landlord" />}>
         <Route path="/manage-tenants" element={<ManageTenants />} />
         <Route path="/viewcomplaints" element={<ViewComplaints />} />
-        <Route path="/view-receipts" element={<ViewReceipts />} /> {/* NEW */}
+        <Route path="/view-receipts" element={<ViewReceipts />} />
       </Route>
     </Routes>
   );
 }
 
-// ✅ Final App with Navbar, Routes, InstallPrompt, Dark Mode Toggle & Toasts
 export default function App() {
+  // ✅ Toggle this flag to show/hide the Under Construction screen
+  const underConstruction = true;
+
   return (
     <AuthProvider>
       <Router>
-        <Navbar />
-        <AppRoutes />
-        <InstallPrompt /> {/* Floating install button */}
-        <DarkModeToggle /> {/* Floating dark mode toggle */}
-        <ToastContainer position="top-right" autoClose={3000} /> {/* Toasts */}
+        {underConstruction ? (
+          <UnderConstruction />
+        ) : (
+          <>
+            <Navbar />
+            <AppRoutes />
+            <InstallPrompt />
+            <DarkModeToggle />
+            <ToastContainer position="top-right" autoClose={3000} />
+          </>
+        )}
       </Router>
     </AuthProvider>
   );
