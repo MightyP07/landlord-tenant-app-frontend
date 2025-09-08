@@ -1,0 +1,158 @@
+/* src/pages/ReceiptHistory.css */
+
+/* Container */
+.receipt-history-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Title */
+.receipt-history-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1e3a8a; /* blue shade */
+}
+
+/* Receipt list */
+.receipt-history-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual receipt item */
+.receipt-history-container li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.receipt-history-container li:hover {
+  background-color: #f3f4f6;
+}
+
+/* Receipt info */
+.receipt-info {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* Actions container */
+.receipt-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* View link */
+.receipt-actions a,
+.receipt-actions button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+/* View button */
+.receipt-actions a {
+  background-color: #e0e7ff;
+  color: #1e3a8a;
+}
+
+.receipt-actions a:hover {
+  background-color: #c7d2fe;
+}
+
+/* Download button */
+.download-btn {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.download-btn:hover {
+  background-color: #fde68a;
+}
+
+/* Loading / empty state */
+.receipt-history-container p {
+  text-align: center;
+  font-size: 1rem;
+  color: #6b7280;
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .receipt-history-container {
+    padding: 1rem;
+  }
+
+  .receipt-history-container li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .receipt-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* ================= Dark Mode ================= */
+.dark .receipt-history-container {
+  background-color: black; /* dark gray */
+  color: #f3f4f6; /* light gray text */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.dark .receipt-history-container h2 {
+  color: #93c5fd; /* lighter blue for dark mode */
+}
+
+.dark .receipt-history-container li {
+  border-bottom: 1px solid #374151;
+}
+
+.dark .receipt-history-container li:hover {
+  background-color: #374151;
+}
+
+.dark .receipt-info {
+  color: #e5e7eb;
+}
+
+.dark .receipt-actions a {
+  background-color: #3b82f6;
+  color: #f3f4f6;
+}
+
+.dark .receipt-actions a:hover {
+  background-color: #2563eb;
+}
+
+.dark .download-btn {
+  background-color: #facc15;
+  color: #1f2937;
+}
+
+.dark .download-btn:hover {
+  background-color: #eab308;
+}
+
+.dark .receipt-history-container p {
+  color: #d1d5db;
+}

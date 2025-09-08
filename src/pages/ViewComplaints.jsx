@@ -4,19 +4,17 @@ import { useAuth } from "../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import API_BASE from "../api.js";
-import {
-  requestPermission,
-  scheduleNotification,
-  cancelNotification,
-} from "../utils/notification.js";
+import { requestPermission, scheduleNotification, cancelNotification } from "../utils/notification.js";
 import "./viewcomplaints.css";
 
 export default function ViewComplaints() {
-  const { user, token } = useAuth(); // ✅ fixed: get both user & token
+  const { user, token } = useAuth();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reminderTimes, setReminderTimes] = useState({});
+  const [activeAlarms, setActiveAlarms] = useState({});
   const inputRefs = useRef({});
+  const alarmRefs = useRef({}); // Store audio elements
 
   // Load saved reminders from localStorage
   useEffect(() => {
@@ -27,7 +25,6 @@ export default function ViewComplaints() {
   // Fetch complaints
   useEffect(() => {
     if (!user) return;
-
     const fetchComplaints = async () => {
       try {
         if (!token) {
@@ -36,26 +33,14 @@ export default function ViewComplaints() {
           return;
         }
 
-        const res = await fetch(
-          `${API_BASE}/api/landlord/complaints/${user._id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`${API_BASE}/api/landlord/complaints`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
 
         const data = await res.json();
-        if (!res.ok)
-          throw new Error(data.message || "Failed to fetch complaints");
-
-        setComplaints(
-          (data.complaints || []).sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          )
-        );
+        if (!res.ok) throw new Error(data.message || "Failed to fetch complaints");
+        setComplaints((data.complaints || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       } catch (err) {
         console.error("❌ Fetch complaints error:", err);
         toast.error(err.message);
@@ -63,21 +48,16 @@ export default function ViewComplaints() {
         setLoading(false);
       }
     };
-
     fetchComplaints();
   }, [user, token]);
 
   // Reschedule saved notifications on load
   useEffect(() => {
-    if (!complaints.length) return;
-
-    Object.entries(reminderTimes).forEach(([id, time]) => {
-      if (time) {
-        const complaint = complaints.find((c) => c._id === id);
-        if (complaint) scheduleNotification(id, complaint.title, time);
-      }
+    complaints.forEach((c) => {
+      const time = reminderTimes[c._id];
+      if (time) scheduleNotificationWithAlarm(c._id, c.title, time);
     });
-  }, [complaints, reminderTimes]);
+  }, [complaints]);
 
   const handleReminderChange = (complaintId, value) => {
     setReminderTimes((prev) => {
@@ -87,23 +67,48 @@ export default function ViewComplaints() {
     });
   };
 
-  const handleSetReminder = async (complaintId, title) => {
-    const time = reminderTimes[complaintId];
-    if (!time) {
-      toast.warn("Please select a time first.");
-      return;
-    }
+  // Schedule notification + alarm
+  const scheduleNotificationWithAlarm = async (complaintId, title, timeString) => {
     const permissionGranted = await requestPermission();
     if (!permissionGranted) {
       toast.error("⚠️ Please allow notifications to set reminders");
       return;
     }
-    scheduleNotification(complaintId, title, time);
+
+    const now = new Date();
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const scheduledTime = new Date();
+    scheduledTime.setHours(hours, minutes, 0, 0);
+    if (scheduledTime < now) scheduledTime.setDate(scheduledTime.getDate() + 1);
+    const delay = scheduledTime - now;
+
+    setTimeout(() => {
+      // Fire SW notification
+      scheduleNotification(complaintId, title, timeString);
+
+      // Play aggressive alarm
+      const alarm = new Audio("/sounds/alarm.mp3"); // add your aggressive ringtone in public/sounds/
+      alarm.loop = true;
+      alarm.play();
+      alarmRefs.current[complaintId] = alarm;
+
+      setActiveAlarms((prev) => ({ ...prev, [complaintId]: true }));
+    }, delay);
+  };
+
+  const handleSetReminder = (complaintId, title) => {
+    const time = reminderTimes[complaintId];
+    if (!time) {
+      toast.warn("Please select a time first.");
+      return;
+    }
+    scheduleNotificationWithAlarm(complaintId, title, time);
     toast.info(`⏰ Reminder set for ${time} on complaint "${title}"`);
   };
 
   const handleCancelReminder = (complaintId, title) => {
     cancelNotification(complaintId);
+    stopAlarm(complaintId);
     setReminderTimes((prev) => {
       const updated = { ...prev, [complaintId]: "" };
       localStorage.setItem("reminderTimes", JSON.stringify(updated));
@@ -113,10 +118,22 @@ export default function ViewComplaints() {
   };
 
   const handleCancelAll = () => {
-    Object.keys(reminderTimes).forEach((id) => cancelNotification(id));
+    Object.keys(reminderTimes).forEach((id) => {
+      cancelNotification(id);
+      stopAlarm(id);
+    });
     setReminderTimes({});
     localStorage.removeItem("reminderTimes");
     toast.info("❌ All reminders cancelled");
+  };
+
+  const stopAlarm = (complaintId) => {
+    const alarm = alarmRefs.current[complaintId];
+    if (alarm) {
+      alarm.pause();
+      alarm.currentTime = 0;
+      setActiveAlarms((prev) => ({ ...prev, [complaintId]: false }));
+    }
   };
 
   const openTimePicker = (complaintId) => {
@@ -153,8 +170,7 @@ export default function ViewComplaints() {
                   )}
                   <p>{c.description}</p>
                   <p className="complaint-meta">
-                    From: {c.tenantName || "Tenant"} |{" "}
-                    {new Date(c.createdAt).toLocaleString()}
+                    From: {c.tenantName || "Tenant"} | {new Date(c.createdAt).toLocaleString()}
                   </p>
 
                   <div className="reminder-wrapper">
@@ -162,23 +178,15 @@ export default function ViewComplaints() {
                       type="time"
                       ref={(el) => (inputRefs.current[c._id] = el)}
                       value={reminderTimes[c._id] || ""}
-                      onChange={(e) =>
-                        handleReminderChange(c._id, e.target.value)
-                      }
-                      style={{ display: "none" }} // hide native input
+                      onChange={(e) => handleReminderChange(c._id, e.target.value)}
+                      style={{ display: "none" }}
                     />
 
-                    <button
-                      className="pick-time-btn"
-                      onClick={() => openTimePicker(c._id)}
-                    >
+                    <button className="pick-time-btn" onClick={() => openTimePicker(c._id)}>
                       {reminderTimes[c._id] || "Pick Time"}
                     </button>
 
-                    <button
-                      className="set-reminder-btn"
-                      onClick={() => handleSetReminder(c._id, complaintTitle)}
-                    >
+                    <button className="set-reminder-btn" onClick={() => handleSetReminder(c._id, complaintTitle)}>
                       ⏰ Set Reminder
                     </button>
 
@@ -189,6 +197,16 @@ export default function ViewComplaints() {
                     >
                       ❌ Cancel
                     </button>
+
+                    {activeAlarms[c._id] && (
+                      <button
+                        className="set-reminder-btn"
+                        style={{ background: "#f39c12", marginLeft: "0.5rem" }}
+                        onClick={() => stopAlarm(c._id)}
+                      >
+                        🔊 Stop Alarm
+                      </button>
+                    )}
                   </div>
                 </li>
               );

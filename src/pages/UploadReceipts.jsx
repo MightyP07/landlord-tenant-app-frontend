@@ -3,12 +3,14 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import API_BASE from "../api.js";
 import { toast } from "react-toastify"; // ✅ no ToastContainer import
+import { useNavigate } from "react-router-dom"; // ✅ added for navigation
 import "./UploadReceipts.css";
 
 export default function UploadReceipts() {
   const { token } = useAuth();
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const navigate = useNavigate(); // ✅ navigation hook
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
 
@@ -45,12 +47,16 @@ export default function UploadReceipts() {
     }
   };
 
+  const goToHistory = () => {
+    navigate("/receipt-history"); // ✅ navigate to ReceiptsHistory page
+  };
+
   return (
     <div className="upload-receipts-container">
       <h2>Upload Payment Receipt</h2>
       <form onSubmit={handleUpload} className="upload-form">
         <input
-          id="receiptInput" // ✅ added ID for clearing
+          id="receiptInput"
           type="file"
           accept="image/*,application/pdf"
           onChange={handleFileChange}
@@ -59,6 +65,11 @@ export default function UploadReceipts() {
           {uploading ? "Uploading..." : "Upload"}
         </button>
       </form>
+
+      {/* ✅ History button */}
+      <button className="btn-history" onClick={goToHistory}>
+        History
+      </button>
     </div>
   );
 }

@@ -1,0 +1,184 @@
+/* ======================= */
+/* PAY RENT CONTAINER STYLES */
+/* ======================= */
+.payrent-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+  color: #333;
+}
+
+.payrent-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.payrent-card {
+  background: #f9f9f9;
+  padding: 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.copy-btn {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+
+.payrent-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel-btn, .proceed-btn {
+  flex: 1;
+  margin: 0 0.5rem;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.cancel-btn {
+  background: #ccc;
+}
+
+.cancel-btn:hover {
+  background: #aaa;
+}
+
+.proceed-btn {
+  background: #28a745;
+  color: #fff;
+}
+
+.proceed-btn:hover {
+  background: #1e7e34;
+}
+
+/* ======================= */
+/* PENDING RENT BOX STYLES */
+/* ======================= */
+.pending-rent {
+  background: #fff3cd;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.confirm-btn {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.confirm-btn:hover {
+  background-color: #45a049;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.reject-btn:hover {
+  background-color: #e53935;
+}
+
+/* ======================= */
+/* DARK MODE STYLES */
+/* ======================= */
+body.dark .payrent-container {
+  background: #1e1e1e;
+  color: #eaeaea;
+  box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+}
+
+body.dark .payrent-title {
+  color: #f1f1f1;
+}
+
+body.dark .payrent-card {
+  background: #2a2a2a;
+  color: #ddd;
+}
+
+body.dark .copy-btn {
+  background: #3399ff;
+}
+
+body.dark .copy-btn:hover {
+  background: #1a73e8;
+}
+
+body.dark .cancel-btn {
+  background: #444;
+  color: #fff;
+}
+
+body.dark .cancel-btn:hover {
+  background: #666;
+}
+
+body.dark .proceed-btn {
+  background: #34c759;
+}
+
+body.dark .proceed-btn:hover {
+  background: #248f3d;
+}
+
+body.dark .pending-rent {
+  background: #5a4b3c;
+  color: #fff8dc;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.05);
+}
+
+body.dark .confirm-btn {
+  background-color: #28a745;
+}
+
+body.dark .confirm-btn:hover {
+  background-color: #1e7e34;
+}
+
+body.dark .reject-btn {
+  background-color: #d32f2f;
+}
+
+body.dark .reject-btn:hover {
+  background-color: #b71c1c;
+}
+
+.disabled-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

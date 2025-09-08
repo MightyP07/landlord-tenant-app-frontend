@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
 import API_BASE from "../api.js";
 import { useNavigate } from "react-router-dom";
+import ProfilePhotoUpload from "../components/ProfilePhotoUpload.jsx";
+import { toast } from "react-toastify";
 
 export default function Profile() {
   const { user, token, loading, updateAuth } = useAuth();
@@ -10,7 +12,31 @@ export default function Profile() {
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
   const [wasDisconnected, setWasDisconnected] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState(user?.photo || null);
   const navigate = useNavigate();
+
+  // Fetch tenant profile on mount
+  useEffect(() => {
+    const fetchTenantProfile = async () => {
+      if (user?.role === "tenant") {
+        try {
+          const res = await fetch(`${API_BASE}/api/tenants/profile`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token ? `Bearer ${token}` : "",
+            },
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
+          updateAuth(data.user, token);
+        } catch (err) {
+          toast.error(err.message);
+        }
+      }
+    };
+
+    fetchTenantProfile();
+  }, [user?.role, token]);
 
   useEffect(() => {
     if (user && user.role === "tenant" && !user.landlordId) {
@@ -23,11 +49,15 @@ export default function Profile() {
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
 
+  const handlePhotoUpload = (url) => {
+    setPhotoUrl(url);
+    updateAuth({ ...user, photo: url }, token);
+  };
+
   const connectLandlord = async () => {
     try {
       setConnecting(true);
       setMessage("");
-
       const res = await fetch(`${API_BASE}/api/tenants/connect`, {
         method: "POST",
         headers: {
@@ -36,12 +66,9 @@ export default function Profile() {
         },
         body: JSON.stringify({ landlordCode }),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
-
       updateAuth(data.user, token);
-
       setMessage("✅ Connected successfully!");
       setWasDisconnected(false);
     } catch (err) {
@@ -60,9 +87,18 @@ export default function Profile() {
       connecting={connecting}
       message={message}
       wasDisconnected={wasDisconnected}
+      photoUrl={photoUrl}
+      handlePhotoUpload={handlePhotoUpload}
+      token={token}
+      updateAuth={updateAuth}
     />
   ) : (
-    <LandlordProfile user={user} navigate={navigate} />
+    <LandlordProfile
+      user={user}
+      navigate={navigate}
+      photoUrl={photoUrl}
+      handlePhotoUpload={handlePhotoUpload}
+    />
   );
 }
 
@@ -75,14 +111,17 @@ function TenantProfile({
   connecting,
   message,
   wasDisconnected,
+  photoUrl,
+  handlePhotoUpload,
 }) {
   const navigate = useNavigate();
+
   return (
     <div className="profile-page tenant-profile">
       <div className="profile-header">
         <h1>Tenant Dashboard</h1>
         <p>Welcome, {user.firstName} 👋</p>
-        <p className="subtitle">Here you can manage your rental life with ease.</p>
+        <p className="subtitle">Manage your rental life here.</p>
       </div>
 
       <div className="profile-actions">
@@ -91,6 +130,8 @@ function TenantProfile({
         </button>
         <button className="btn-secondary">View Rental Info</button>
       </div>
+
+      <ProfilePhotoUpload currentPhoto={photoUrl} onUpload={handlePhotoUpload} />
 
       <div className="profile-info">
         <h2>Your Details</h2>
@@ -108,6 +149,22 @@ function TenantProfile({
           <ul>
             <li><strong>Name:</strong> {user.landlordId.firstName} {user.landlordId.lastName}</li>
             <li><strong>Email:</strong> {user.landlordId.email}</li>
+            <li><strong>Bank:</strong> {user.landlordId?.bankDetails?.bankName || "N/A"}</li>
+            <li><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "N/A"}</li>
+            {user.landlordId?.bankDetails?.accountNumber && (
+              <li>
+                <strong>Account Number:</strong> {user.landlordId.bankDetails.accountNumber}
+                <button
+                  className="copy-btn"
+                  onClick={() => {
+                    navigator.clipboard.writeText(user.landlordId.bankDetails.accountNumber);
+                    toast.success("✅ Account number copied!");
+                  }}
+                >
+                  📋 Copy
+                </button>
+              </li>
+            )}
           </ul>
         ) : (
           <>
@@ -130,57 +187,63 @@ function TenantProfile({
                 placeholder="Enter landlord code"
                 className="connect-input"
               />
-              <button
-                type="submit"
-                className="connect-btn"
-                disabled={connecting}
-              >
+              <button type="submit" className="connect-btn" disabled={connecting}>
                 {connecting ? "Connecting..." : "Connect"}
               </button>
             </form>
-
             {message && (
-              <p
-                className={
-                  message.startsWith("✅")
-                    ? "success-message"
-                    : "error-message"
-                }
-              >
+              <p className={message.startsWith("✅") ? "success-message" : "error-message"}>
                 {message}
               </p>
             )}
           </>
         )}
+
+{/* Pending Rent Confirmation */}
+{user.pendingRent && (
+  <div
+    className="pending-rent-alert"
+    style={{
+      backgroundColor: "#ff4d4f", // bright red
+      color: "#fff",
+      padding: "20px",
+      borderRadius: "10px",
+      marginTop: "20px",
+      textAlign: "center",
+      fontSize: "1.5rem",
+      fontWeight: "bold",
+      boxShadow: "0 0 15px rgba(255, 0, 0, 0.5)",
+      animation: "pulse 1s infinite alternate",
+    }}
+  >
+    ⚠️ ALERT! Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>!
+  </div>
+)}
       </div>
     </div>
   );
 }
 
 // ---------------- Landlord Profile ----------------
-function LandlordProfile({ user, navigate }) {
+function LandlordProfile({ user, navigate, photoUrl, handlePhotoUpload }) {
   return (
     <div className="profile-page landlord-profile darkMode">
-      <div className="profile-header darkMode dark-mode">
+      <div className="profile-header">
         <h1>Landlord Dashboard</h1>
         <p>Welcome, {user.firstName} 👋</p>
-        <p className="subtitle">Keep track of tenants and complaints here.</p>
+        <p className="subtitle">Manage tenants and track complaints here.</p>
       </div>
 
       <div className="profile-actions">
-        <button
-          className="btn-primary"
-          onClick={() => navigate("/viewcomplaints")}
-        >
+        <button className="btn-primary" onClick={() => navigate("/viewcomplaints")}>
           View Complaints
         </button>
-        <button
-          className="btn-secondary"
-          onClick={() => navigate("/manage-tenants")}
-        >
+        <button className="btn-secondary" onClick={() => navigate("/manage-tenants")}>
           Manage Tenants
         </button>
       </div>
+
+      <ProfilePhotoUpload currentPhoto={photoUrl} onUpload={handlePhotoUpload} />
 
       <div className="profile-info">
         <h2>Your Details</h2>

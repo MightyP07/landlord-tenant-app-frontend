@@ -267,3 +267,33 @@ body.dark .success-message {
 body.dark .error-message {
   color: #ff6b6b;
 }
+
+.copy-btn {
+  margin-left: 10px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+
+.dashboard-section ul li {
+  margin-bottom: 8px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.pending-rent-alert {
+  animation: pulse 1s infinite alternate;
+}

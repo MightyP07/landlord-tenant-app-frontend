@@ -9,7 +9,7 @@ import "./Navbar.css";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, setUser } = useAuth();
-  const { logout } = useAuth();
+  // const { logout } = useAuth();
   const navigate = useNavigate();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -46,6 +46,9 @@ export default function Navbar() {
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/complaints" onClick={() => setMenuOpen(false)}>Log a complaint</Link>
           <Link to="/upload-receipts" onClick={() => setMenuOpen(false)}>Upload Receipts</Link>
+          <Link to="/receipt-history" onClick={() => setMenuOpen(false)}>Receipt History</Link>
+          <Link to="/pay-rent" onClick={() => setMenuOpen(false)}>Pay Rent</Link>
+          <Link to="/payment-receipt" onClick={() => setMenuOpen(false)}>Payment Receipts</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );
@@ -57,6 +60,7 @@ export default function Navbar() {
           <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
           <Link to="/viewcomplaints" onClick={() => setMenuOpen(false)}>View Complaints</Link>
           <Link to="/view-receipts" onClick={() => setMenuOpen(false)}>View Receipts</Link>
+          <Link to="/add-bank-details" onClick={() => setMenuOpen(false)}>Add Bank Details</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
         </>
       );

@@ -1,5 +1,6 @@
+// public/service-worker.js
+
 // ===== Cache Setup =====
-// ✅ Use timestamp so each deployment creates a new cache
 const CACHE_NAME = `ltapp-cache-${Date.now()}`;
 let urlsToCache = ["/", "/index.html"];
 
@@ -33,9 +34,7 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     })()
@@ -45,17 +44,13 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match("/index.html"))
-    );
+    event.respondWith(fetch(event.request).catch(() => caches.match("/index.html")));
   } else {
-    event.respondWith(
-      caches.match(event.request).then((resp) => resp || fetch(event.request))
-    );
+    event.respondWith(caches.match(event.request).then((resp) => resp || fetch(event.request)));
   }
 });
 
-// ===== Push Notifications =====
+// ===== Push Notifications & Aggressive Alarm =====
 self.addEventListener("push", (event) => {
   let data = {};
   try {
@@ -72,17 +67,36 @@ self.addEventListener("push", (event) => {
     badge: "/icons/icon-192.png",
     tag: data.tag || "ltapp-reminder",
     data,
+    vibrate: [200, 100, 200, 100, 400], // vibration pattern
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+
+  event.waitUntil(
+    (async () => {
+      // Show notification
+      await self.registration.showNotification(title, options);
+
+      // Try playing aggressive alarm
+      try {
+        const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        if (clients && clients.length) {
+          // Send message to client(s) to play alarm sound
+          clients.forEach((client) => {
+            client.postMessage({ type: "PLAY_ALARM", payload: { title } });
+          });
+        }
+      } catch (e) {
+        console.error("Error sending PLAY_ALARM message to client:", e);
+      }
+    })()
+  );
 });
 
+// Notification click
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then((clientList) => {
-      const appClient = clientList.find(
-        (c) => c.url.includes("/") && "focus" in c
-      );
+      const appClient = clientList.find((c) => c.url.includes("/") && "focus" in c);
       if (appClient) return appClient.focus();
       return self.clients.openWindow("/");
     })

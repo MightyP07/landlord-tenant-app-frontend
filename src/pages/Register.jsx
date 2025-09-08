@@ -26,6 +26,13 @@ export default function Register() {
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
+  // Capitalize first letter of each word in a string
+  const capitalize = (str) =>
+    str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -37,12 +44,20 @@ export default function Register() {
       return;
     }
 
-    const trimmedData = {
-      firstName: formData.firstName.trim(),
-      lastName: formData.lastName.trim(),
+    // Trim and capitalize names before sending to backend
+    let trimmedData = {
+      firstName: capitalize(formData.firstName.trim()),
+      lastName: capitalize(formData.lastName.trim()),
       email: formData.email.trim(),
       password: formData.password.trim(),
     };
+
+    // ✅ Enforce minimum password length
+    if (trimmedData.password.length < 4) {
+      toast.error("❌ Password must be at least 4 characters long.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/register`, {

@@ -16,12 +16,16 @@ import DarkModeToggle from "./components/DarkModeToggle.jsx";
 import { useEffect } from "react";
 import UploadReceipts from "./pages/UploadReceipts.jsx";
 import ViewReceipts from "./pages/ViewReceipts.jsx";
-
+import TenantReceipts from "./pages/TenantReceipts.jsx";
+import ReceiptHistory from "./pages/ReeiptHistory.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AddBankDetails from "./pages/AddBankDetails";
+import PayRent from "./pages/PayRent.jsx";
 
 // 🚧 Import Under Construction
 import UnderConstruction from "../src/components/UnderConstruction.jsx";
+import PaymentReceipts from "./pages/PaymentReceipts.jsx";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -54,6 +58,9 @@ function AppRoutes() {
         <Route path="/connect-landlord" element={<ConnectLandlord />} />
         <Route path="/complaints" element={<LogComplaints />} />
         <Route path="/upload-receipts" element={<UploadReceipts />} />
+        <Route path="/receipt-history" element={<ReceiptHistory />} />
+        <Route path="/pay-rent" element={<PayRent />} />
+        <Route path="/payment-receipt" element={<PaymentReceipts />} />
       </Route>
 
       {/* Protected: only landlords */}
@@ -61,6 +68,8 @@ function AppRoutes() {
         <Route path="/manage-tenants" element={<ManageTenants />} />
         <Route path="/viewcomplaints" element={<ViewComplaints />} />
         <Route path="/view-receipts" element={<ViewReceipts />} />
+        <Route path="/my-receipts" element={<TenantReceipts />} />
+        <Route path="/add-bank-details" element={<AddBankDetails />} />
       </Route>
     </Routes>
   );
@@ -68,7 +77,7 @@ function AppRoutes() {
 
 export default function App() {
   // ✅ Toggle this flag to show/hide the Under Construction screen
-  const underConstruction = true;
+  const underConstruction = false;
 
   return (
     <AuthProvider>
