@@ -62,24 +62,17 @@ export default function PayRent() {
 
   const handleCancel = () => navigate("/profile");
 
-  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-  const amountInKobo = pendingRent ? Number(pendingRent.amount.toString().replace(/,/g, "")) * 100 : 0;
-
-  // Paystack inline payment
+  // PAYSTACK INLINE PAYMENT
   const handlePay = () => {
-    if (!pendingRent || !user.email) return;
-    if (!window.PaystackPop) {
-      toast.error("❌ Paystack not loaded. Refresh the page.");
-      return;
-    }
+    if (!pendingRent) return;
 
     const handler = window.PaystackPop.setup({
-      key: publicKey,
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: amountInKobo,
+      amount: Number(pendingRent.amount.toString().replace(/,/g, "")) * 100,
       currency: "NGN",
       onClose: () => toast.error("❌ Payment cancelled"),
-      callback: async function (response) {
+      callback: async (response) => {
         toast.success("✅ Payment initiated! Verifying...");
         try {
           const res = await fetch(`${API_BASE}/api/payments/verify`, {
@@ -90,6 +83,7 @@ export default function PayRent() {
             },
             body: JSON.stringify({ reference: response.reference }),
           });
+
           const data = await res.json();
           if (!res.ok) throw new Error(data.message || "Verification failed");
 
@@ -104,6 +98,7 @@ export default function PayRent() {
         }
       },
     });
+
     handler.openIframe();
   };
 
@@ -148,11 +143,7 @@ export default function PayRent() {
 
       <div className="payrent-actions">
         <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
-        <button
-          className={`proceed-btn ${!pendingRent ? "disabled-btn" : ""}`}
-          disabled={!pendingRent}
-          onClick={handlePay}
-        >
+        <button className={`proceed-btn ${!pendingRent ? "disabled-btn" : ""}`} onClick={handlePay} disabled={!pendingRent}>
           Pay Rent
         </button>
         {pendingRent && (
