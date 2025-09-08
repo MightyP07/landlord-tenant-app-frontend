@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { PaystackButton } from "react-paystack";
 import API_BASE from "../api.js";
 import { scheduleRentReminder, cancelRentReminder } from "../utils/rentNotification.js";
 import "./payrent.css";
@@ -62,44 +63,42 @@ export default function PayRent() {
 
   const handleCancel = () => navigate("/profile");
 
-  // PAYSTACK INLINE PAYMENT
-  const handlePay = () => {
-    if (!pendingRent) return;
+  const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+  const amountInKobo = pendingRent ? Number(pendingRent.amount.toString().replace(/,/g, "")) * 100 : 0;
+  const canPay = pendingRent && user.email;
 
-    const handler = window.PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-      email: user.email,
-      amount: Number(pendingRent.amount.toString().replace(/,/g, "")) * 100,
-      currency: "NGN",
-      onClose: () => toast.error("❌ Payment cancelled"),
-      callback: async (response) => {
-        toast.success("✅ Payment initiated! Verifying...");
-        try {
-          const res = await fetch(`${API_BASE}/api/payments/verify`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ reference: response.reference }),
-          });
+  const componentProps = {
+    email: user.email,
+    amount: amountInKobo,
+    publicKey,
+    currency: "NGN",
+    text: "Pay Rent",
+    onSuccess: async (reference) => {
+      toast.success("✅ Payment initiated! Verifying...");
+      try {
+        const res = await fetch(`${API_BASE}/api/payments/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ reference: reference.reference }),
+        });
 
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Verification failed");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Verification failed");
 
-          const receipt = data.receipt;
-          toast.success(`✅ Payment verified! Reference: ${receipt.reference}, Amount: ₦${receipt.amount}`);
+        const receipt = data.receipt;
+        toast.success(`✅ Payment verified! Reference: ${receipt.reference}, Amount: ₦${receipt.amount}`);
 
-          if (pendingRent?._id) cancelRentReminder(pendingRent._id);
-          setPendingRent(null);
-          setAuth(prev => ({ ...prev, user: { ...prev.user, pendingRent: null } }));
-        } catch (err) {
-          toast.error(err.message);
-        }
-      },
-    });
-
-    handler.openIframe();
+        if (pendingRent?._id) cancelRentReminder(pendingRent._id);
+        setPendingRent(null);
+        setAuth(prev => ({ ...prev, user: { ...prev.user, pendingRent: null } }));
+      } catch (err) {
+        toast.error(err.message);
+      }
+    },
+    onClose: () => toast.error("❌ Payment cancelled"),
   };
 
   // Aggressive rent reminder
@@ -143,9 +142,11 @@ export default function PayRent() {
 
       <div className="payrent-actions">
         <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
-        <button className={`proceed-btn ${!pendingRent ? "disabled-btn" : ""}`} onClick={handlePay} disabled={!pendingRent}>
-          Pay Rent
-        </button>
+        <PaystackButton
+          {...componentProps}
+          className={`proceed-btn ${!canPay ? "disabled-btn" : ""}`}
+          disabled={!canPay}
+        />
         {pendingRent && (
           <button className="stop-alarm-btn" onClick={handleStopReminder}>
             🔊 Stop Alarm
