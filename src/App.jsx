@@ -85,7 +85,6 @@ export default function App() {
             <InstallPrompt />
             <DarkModeToggle />
             <ToastContainer position="top-right" autoClose={3000} />
-            <YourRoutes />
           </>
         )}
       </Router>
