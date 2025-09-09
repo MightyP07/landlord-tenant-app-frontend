@@ -1,5 +1,8 @@
-import { createContext, useContext, useState } from "react";
+// src/context/AuthContext.jsx
+import { createContext, useContext, useState, useEffect } from "react";
 import API_BASE from "../api.js";
+import socket from "../utils/socket.js";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
@@ -10,9 +13,41 @@ export const AuthProvider = ({ children }) => {
   });
 
   const loading = false;
-
   const user = auth.user;
   const token = auth.token;
+
+  // 🔌 Socket connection + notification listener
+  useEffect(() => {
+    if (user?._id) {
+      socket.connect();
+
+      // Register user with backend
+      socket.emit("registerUser", user._id);
+
+      // Listen for incoming notifications
+      socket.on("notification", (notif) => {
+        console.log("📩 New Notification:", notif);
+
+        // Vibrate (if supported)
+        if ("vibrate" in navigator) {
+          navigator.vibrate([300, 200, 300, 200, 300]); // aggressive buzz
+        }
+
+        // Show toast notification
+        toast.info(notif.message, {
+          autoClose: false,
+          closeOnClick: true,
+          draggable: true,
+        });
+      });
+    }
+
+    // Cleanup on unmount or user change
+    return () => {
+      socket.off("notification");
+      socket.disconnect();
+    };
+  }, [user]);
 
   const updateAuth = (userData, tokenData) => {
     const newAuth = { user: userData, token: tokenData ?? auth.token };
@@ -45,23 +80,21 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("auth");
     setAuth({ user: null, token: null });
+    socket.disconnect(); // Clean socket disconnect
   };
-
-  // ✅ Debug log
-  console.log("AuthContext value:", {
-    user,
-    token,
-    setUser,
-    updateAuth,
-    fetchCurrentUser,
-    logout,
-    setAuth,
-    loading,
-  });
 
   return (
     <AuthContext.Provider
-      value={{ user, token, setUser, updateAuth, fetchCurrentUser, logout, setAuth, loading }}
+      value={{
+        user,
+        token,
+        setUser,
+        updateAuth,
+        fetchCurrentUser,
+        logout,
+        setAuth,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -68,6 +68,7 @@ self.addEventListener("push", (event) => {
     tag: data.tag || "ltapp-reminder",
     data,
     vibrate: [200, 100, 200, 100, 400], // vibration pattern
+    requireInteraction: true,
   };
 
   event.waitUntil(
@@ -91,7 +92,30 @@ self.addEventListener("push", (event) => {
   );
 });
 
-// Notification click
+// public/service-worker.js
+
+// ... your existing cache code ...
+
+// Show notification when triggered from client
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SHOW_NOTIFICATION") {
+    const { title, body, tag } = event.data.payload;
+    self.registration.showNotification(title, {
+      body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag,
+      vibrate: [500, 200, 500, 200, 500, 1000, 800, 200, 800, 200, 800],
+      requireInteraction: true,
+    });
+  }
+
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+// Handle notification clicks
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(
@@ -101,11 +125,4 @@ self.addEventListener("notificationclick", (event) => {
       return self.clients.openWindow("/");
     })
   );
-});
-
-// ===== Messages from client =====
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
 });

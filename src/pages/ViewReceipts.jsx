@@ -44,7 +44,7 @@ export default function ViewReceipts() {
     fetchReceipts();
   }, []);
 
-  const handleDownload = async (id, filename) => {
+  const handleDownload = async (id) => {
     try {
       const stored = localStorage.getItem("auth");
       const token = stored ? JSON.parse(stored)?.token : null;
@@ -64,10 +64,9 @@ export default function ViewReceipts() {
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-
       const a = document.createElement("a");
       a.href = url;
-      a.download = filename || "receipt";
+      a.download = `Receipt-${id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -86,15 +85,15 @@ export default function ViewReceipts() {
     <div className="receipts-card">
       <h1 className="receipts-title">Tenant Receipts</h1>
       {receipts.length === 0 ? (
-        <p className="receipts-empty">No receipts uploaded yet.</p>
+        <p className="receipts-empty">No receipts available yet.</p>
       ) : (
         <div className="receipts-table-wrapper">
           <table className="receipts-table">
             <thead>
               <tr>
                 <th>Tenant</th>
-                <th>Filename</th>
-                <th>Uploaded At</th>
+                <th>Amount</th>
+                <th>Paid At</th>
                 <th>Download</th>
               </tr>
             </thead>
@@ -104,14 +103,14 @@ export default function ViewReceipts() {
                   <td>
                     {r.user.firstName} {r.user.lastName}
                   </td>
-                  <td>{r.originalName}</td>
-                  <td>{new Date(r.uploadedAt).toLocaleString()}</td>
+                  <td>₦{r.amount || "N/A"}</td>
+                  <td>{new Date(r.paidAt || r.uploadedAt).toLocaleString()}</td>
                   <td>
                     <button
-                      onClick={() => handleDownload(r._id, r.originalName)}
+                      onClick={() => handleDownload(r._id)}
                       className="download-btn"
                     >
-                      Download
+                      Download PDF
                     </button>
                   </td>
                 </tr>

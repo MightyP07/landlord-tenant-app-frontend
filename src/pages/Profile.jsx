@@ -149,8 +149,8 @@ function TenantProfile({
           <ul>
             <li><strong>Name:</strong> {user.landlordId.firstName} {user.landlordId.lastName}</li>
             <li><strong>Email:</strong> {user.landlordId.email}</li>
-            <li><strong>Bank:</strong> {user.landlordId?.bankDetails?.bankName || "N/A"}</li>
-            <li><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "N/A"}</li>
+            <li><strong>Bank:</strong> {user.landlordId?.bankDetails?.bankName || "Not yet set by your landlord"}</li>
+            <li><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "Not yet set by your landlord"}</li>
             {user.landlordId?.bankDetails?.accountNumber && (
               <li>
                 <strong>Account Number:</strong> {user.landlordId.bankDetails.accountNumber}
@@ -198,27 +198,31 @@ function TenantProfile({
             )}
           </>
         )}
-
-{/* Pending Rent Confirmation */}
-{user.pendingRent && (
+        
+{user.pendingRent?.amount && (
   <div
     className="pending-rent-alert"
     style={{
-      backgroundColor: "#ff4d4f", // bright red
-      color: "#fff",
-      padding: "20px",
+      backgroundColor: "#ffd666",
+      color: "#333",
+      padding: "18px",
       borderRadius: "10px",
       marginTop: "20px",
       textAlign: "center",
-      fontSize: "1.5rem",
-      fontWeight: "bold",
-      boxShadow: "0 0 15px rgba(255, 0, 0, 0.5)",
-      animation: "pulse 1s infinite alternate",
+      fontSize: "1.3rem",
+      fontWeight: "600",
+      boxShadow: "0 0 12px rgba(255, 200, 0, 0.4)",
+      animation: "pulse 1.5s infinite alternate",
+      cursor: "pointer",
     }}
+    onClick={() => navigate("/pay-rent")}
+    title="Click to pay your rent"
   >
-    ⚠️ ALERT! Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>!
+    💡 Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>.
+    Click here to pay now.
   </div>
 )}
+
       </div>
     </div>
   );

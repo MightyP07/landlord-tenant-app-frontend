@@ -1,6 +1,6 @@
 /* ===== Register page (blue/white theme) ===== */
 
-/* Wrapper card (keeps your existing .auth usage) */
+/* Wrapper card */
 .auth {
   max-width: 420px;
   margin: 60px auto;
@@ -14,7 +14,7 @@
 .auth h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #0044cc;            /* matches navbar */
+  color: #0044cc;
   text-align: center;
   margin-bottom: 10px;
 }
@@ -26,7 +26,7 @@
 }
 
 .auth p a {
-  color: #007bff;            /* matches primary buttons */
+  color: #007bff;
   font-weight: 600;
   text-decoration: none;
 }
@@ -42,14 +42,14 @@
   gap: 14px;
 }
 
-/* First/Last name on one row (stacks on small screens) */
+/* First/Last name on one row */
 .name-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 .name-row input {
-  min-width: 0;              /* prevents overflow on small screens */
+  min-width: 0;
 }
 
 /* Inputs */
@@ -70,12 +70,12 @@
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
-/* Password toggle (eye/monkey icon) */
+/* Password toggle */
 .password-wrapper {
   position: relative;
 }
 .password-wrapper input {
-  padding-right: 42px;       /* space for the icon */
+  padding-right: 42px;
 }
 .password-wrapper span {
   position: absolute;
@@ -85,6 +85,32 @@
   cursor: pointer;
   font-size: 1.15rem;
   color: #6b7280;
+}
+
+/* Role selection */
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1.5px solid #d0d7e2;
+  border-radius: 10px;
+  background: #f9fbff;
+}
+
+.role-selection label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+}
+
+.role-selection input[type="radio"] {
+  accent-color: #007bff; /* theme blue */
+  transform: scale(1.1);
+  cursor: pointer;
 }
 
 /* Submit button */
@@ -118,7 +144,75 @@
     padding: 20px;
   }
   .name-row {
-    grid-template-columns: 1fr;  /* stack on small screens */
+    grid-template-columns: 1fr;
     gap: 10px;
   }
+  .role-selection {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
+/* ===== Dark mode ===== */
+.dark .auth {
+  background: #1e293b; /* slate-800 */
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
+}
+
+.dark .auth h2 {
+  color: #60a5fa; /* blue-400 */
+}
+
+.dark .auth p {
+  color: #d1d5db; /* gray-300 */
+}
+
+.dark .auth p a {
+  color: #93c5fd; /* blue-300 */
+}
+.dark .auth p a:hover {
+  color: #60a5fa; /* blue-400 */
+}
+
+.dark .auth input[type="text"],
+.dark .auth input[type="email"],
+.dark .auth input[type="password"] {
+  background: #0f172a; /* slate-900 */
+  border-color: #334155; /* slate-700 */
+  color: #f1f5f9;
+}
+.dark .auth input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+.dark .password-wrapper span {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Dark mode: role-selection */
+.dark .role-selection {
+  background: #0f172a; /* slate-900 */
+  border-color: #334155; /* slate-700 */
+}
+
+.dark .role-selection label {
+  color: #e5e7eb; /* gray-200 */
+}
+
+.dark .role-selection input[type="radio"] {
+  accent-color: #3b82f6; /* brighter blue */
+}
+
+/* Dark mode: button */
+.dark .auth button[type="submit"] {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+}
+.dark .auth button[type="submit"]:hover {
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45);
+}
+.dark .auth button[type="submit"]:active {
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.28);
 }

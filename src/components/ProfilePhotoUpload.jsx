@@ -5,11 +5,11 @@ import "./ProfilePhotoUpload.css";
 import API_BASE from "../api.js";
 
 export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
-  const { token } = useAuth();
+  const { user, token, setUser } = useAuth(); // ✅ get from context
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(currentPhoto || null);
   const [uploading, setUploading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false); // For full-size view
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     setPreview(currentPhoto || null);
@@ -53,6 +53,12 @@ export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
 
       toast.success("✅ Photo uploaded successfully!");
       setPreview(data.photoUrl);
+
+      // ✅ persist in AuthContext + localStorage
+      const updatedUser = { ...user, photo: data.photoUrl };
+      setUser(updatedUser);
+      localStorage.setItem("auth", JSON.stringify({ user: updatedUser, token }));
+
       if (onUpload) onUpload(data.photoUrl);
       setFile(null);
     } catch (err) {

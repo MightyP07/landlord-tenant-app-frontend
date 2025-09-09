@@ -5,17 +5,16 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/register.css";
 import API_BASE from "../api.js";
-import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
+    role: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,7 +25,6 @@ export default function Register() {
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
-  // Capitalize first letter of each word in a string
   const capitalize = (str) =>
     str
       .split(" ")
@@ -37,6 +35,7 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
 
+    // ✅ Email validation
     const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
     if (!emailPattern.test(formData.email)) {
       toast.error("❌ Please use a valid Gmail or Yahoo email address.");
@@ -44,15 +43,21 @@ export default function Register() {
       return;
     }
 
-    // Trim and capitalize names before sending to backend
-    let trimmedData = {
+    // ✅ Role required
+    if (!formData.role) {
+      toast.error("❌ Please select a role (Tenant or Landlord).");
+      setLoading(false);
+      return;
+    }
+
+    const trimmedData = {
       firstName: capitalize(formData.firstName.trim()),
       lastName: capitalize(formData.lastName.trim()),
       email: formData.email.trim(),
       password: formData.password.trim(),
+      role: formData.role,
     };
 
-    // ✅ Enforce minimum password length
     if (trimmedData.password.length < 4) {
       toast.error("❌ Password must be at least 4 characters long.");
       setLoading(false);
@@ -69,12 +74,19 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("🎉 Registration successful! Redirecting...");
+        // ✅ Show landlord code if provided
+        if (trimmedData.role === "landlord" && data.user.landlordCode) {
+          toast.info(`🎉 Your landlord code is: ${data.user.landlordCode}. Save it safely!`, {
+            autoClose: 8000,
+          });
+        }
 
-        // ✅ Redirect to ChooseRole
+        toast.success("🎉 Registration successful! Please log in.");
+
+        // ✅ Redirect to login page
         setTimeout(() => {
-          navigate("/choose-role", { state: { userId: data.user._id } });
-        }, 1200);
+          navigate("/login");
+        }, 1800);
       } else {
         toast.error(data.message || "Registration failed.");
       }
@@ -137,6 +149,32 @@ export default function Register() {
             <span className="toggle-password" onClick={toggleShowPassword}>
               {showPassword ? "🙈" : "👁️"}
             </span>
+          </div>
+
+          {/* ✅ Role selection */}
+          <div className="role-selection">
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="tenant"
+                checked={formData.role === "tenant"}
+                onChange={handleChange}
+                required
+              />
+              Tenant
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="landlord"
+                checked={formData.role === "landlord"}
+                onChange={handleChange}
+                required
+              />
+              Landlord
+            </label>
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>

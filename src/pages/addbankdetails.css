@@ -1,3 +1,4 @@
+/* ---------- Bank Details Container ---------- */
 .bankdetails-container {
   max-width: 400px;
   margin: 2rem auto;
@@ -6,6 +7,7 @@
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s, border 0.3s, box-shadow 0.3s;
 }
 
 .bankdetails-container h2 {
@@ -15,6 +17,7 @@
   color: #333;
 }
 
+/* ---------- Form ---------- */
 .bankdetails-form {
   display: flex;
   flex-direction: column;
@@ -23,6 +26,8 @@
 .bankdetails-form label {
   font-weight: bold;
   margin: 0.5rem 0 0.2rem;
+  color: #333;
+  transition: color 0.3s;
 }
 
 .bankdetails-form input {
@@ -31,7 +36,9 @@
   border-radius: 6px;
   margin-bottom: 1rem;
   font-size: 0.95rem;
-  transition: background 0.2s, border 0.2s;
+  transition: background 0.3s, border 0.3s, color 0.3s;
+  background: #fff;
+  color: #000;
 }
 
 .bankdetails-form input:disabled {
@@ -66,5 +73,49 @@
 }
 
 .edit-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Dark Mode ---------- */
+body.dark .bankdetails-container {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .bankdetails-container h2 {
+  color: #f0f0f0;
+}
+
+body.dark .bankdetails-form label {
+  color: #ddd;
+}
+
+body.dark .bankdetails-form input {
+  background: #2b2b2b;
+  border: 1px solid #555;
+  color: #f0f0f0;
+}
+
+body.dark .bankdetails-form input:disabled {
+  background: #3a3a3a;
+  border: 1px solid #555;
+  color: #aaa;
+}
+
+body.dark .bankdetails-form button {
+  background: #0d6efd;
+  color: white;
+}
+
+body.dark .bankdetails-form button:hover {
+  background: #0a58ca;
+}
+
+body.dark .edit-link {
+  color: #4ea0ff;
+}
+
+body.dark .edit-link:hover {
   text-decoration: underline;
 }

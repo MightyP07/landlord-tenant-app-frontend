@@ -1,3 +1,4 @@
+// PayRent.jsx
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,13 @@ export default function PayRent() {
   const navigate = useNavigate();
   const [pendingRent, setPendingRent] = useState(null);
   const notified = useRef(false);
+  const alarmRef = useRef(null);
+
+  // init alarm
+  useEffect(() => {
+    alarmRef.current = new Audio("/sounds/alarm.mp3");
+    alarmRef.current.loop = true;
+  }, []);
 
   // Fetch tenant data
   const fetchTenantData = async () => {
@@ -46,26 +54,21 @@ export default function PayRent() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!user || !user.landlordId?.bankDetails) {
-    return (
-      <div className="payrent-container">
-        <p>No landlord bank details found. Connect to a landlord first.</p>
-      </div>
-    );
-  }
-
-  const { bankName, accountName, accountNumber } = user.landlordId.bankDetails;
-
   const handleCopy = () => {
-    navigator.clipboard.writeText(accountNumber);
-    toast.success("✅ Account number copied!");
+    if (user.landlordId?.bankDetails?.accountNumber) {
+      navigator.clipboard.writeText(user.landlordId.bankDetails.accountNumber);
+      toast.success("✅ Account number copied!");
+    }
   };
 
   const handleCancel = () => navigate("/profile");
 
   const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-  const amountInKobo = pendingRent ? Number(pendingRent.amount.toString().replace(/,/g, "")) * 100 : 0;
-  const canPay = pendingRent && user.email;
+  const amountInKobo =
+    pendingRent && pendingRent.amount
+      ? Number(String(pendingRent.amount).replace(/,/g, "")) * 100
+      : 0;
+  const canPay = !!pendingRent && !!user.email;
 
   const componentProps = {
     email: user.email,
@@ -80,8 +83,7 @@ export default function PayRent() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`},
           body: JSON.stringify({ reference: reference.reference }),
         });
 
@@ -89,9 +91,11 @@ export default function PayRent() {
         if (!res.ok) throw new Error(data.message || "Verification failed");
 
         const receipt = data.receipt;
-        toast.success(`✅ Payment verified! Reference: ${receipt.reference}, Amount: ₦${receipt.amount}`);
+        toast.success(`✅ Payment verified! Ref: ${receipt.reference}, Amount: ₦${receipt.amount}`);
 
         if (pendingRent?._id) cancelRentReminder(pendingRent._id);
+
+        stopAlarm(); // stop alarm once paid
         setPendingRent(null);
         setAuth(prev => ({ ...prev, user: { ...prev.user, pendingRent: null } }));
       } catch (err) {
@@ -103,42 +107,63 @@ export default function PayRent() {
 
   // Aggressive rent reminder
   useEffect(() => {
-    if (pendingRent && !notified.current) {
+    if (pendingRent?.amount && !notified.current) {
       toast.error(`🔥 Rent reminder: ₦${pendingRent.amount} due! Pay now!`, { autoClose: false });
+
+      if (alarmRef.current) {
+        alarmRef.current.play().catch(err => console.warn("Autoplay blocked", err));
+      }
+
+      if ("vibrate" in navigator) {
+        navigator.vibrate([500, 200, 500, 200, 1000, 200, 1000]); // aggressive pattern
+      }
+
       if (pendingRent._id) scheduleRentReminder(pendingRent._id, pendingRent.amount);
       notified.current = true;
-    } else if (!pendingRent) {
+    } else if (!pendingRent?.amount) {
       notified.current = false;
+      stopAlarm();
     }
   }, [pendingRent]);
 
-  const handleStopReminder = () => {
-    if (pendingRent?._id) {
-      cancelRentReminder(pendingRent._id);
-      toast.info("❌ Rent reminder stopped");
+  const stopAlarm = () => {
+    if (alarmRef.current) {
+      alarmRef.current.pause();
+      alarmRef.current.currentTime = 0;
     }
+    navigator.vibrate(0);
+  };
+
+  const handleStopReminder = () => {
+    stopAlarm();
+    if (pendingRent?._id) cancelRentReminder(pendingRent._id);
+    toast.info("❌ Rent reminder stopped");
   };
 
   return (
     <div className="payrent-container">
       <h2 className="payrent-title">Pay Rent</h2>
 
-      {pendingRent && (
+      {pendingRent?.amount ? (
         <div className="pending-rent">
-          <p>
-            <strong>Landlord set your rent:</strong> ₦{pendingRent.amount}
-          </p>
+          <p><strong>Landlord set your rent:</strong> ₦{pendingRent.amount}</p>
         </div>
+      ) : (
+        <p className="no-rent">Your landlord has not set the rent yet. Paystack disabled.</p>
       )}
 
-      <div className="payrent-card">
-        <p><strong>Bank Name:</strong> {bankName || "N/A"}</p>
-        <p><strong>Account Name:</strong> {accountName || "N/A"}</p>
-        <p><strong>Account Number:</strong> {accountNumber || "N/A"}</p>
-        {accountNumber && (
-          <button className="copy-btn" onClick={handleCopy}>📋 Copy Account Number</button>
-        )}
-      </div>
+      {user.landlordId ? (
+        <div className="payrent-card">
+          <p><strong>Bank Name:</strong> {user.landlordId?.bankDetails?.bankName || "N/A"}</p>
+          <p><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "N/A"}</p>
+          <p><strong>Account Number:</strong> {user.landlordId?.bankDetails?.accountNumber || "N/A"}</p>
+          {user.landlordId?.bankDetails?.accountNumber && (
+            <button className="copy-btn" onClick={handleCopy}>📋 Copy Account Number</button>
+          )}
+        </div>
+      ) : (
+        <p>No landlord connected yet. You cannot pay rent.</p>
+      )}
 
       <div className="payrent-actions">
         <button className="cancel-btn" onClick={handleCancel}>Cancel</button>

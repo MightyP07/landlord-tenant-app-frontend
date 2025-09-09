@@ -4,7 +4,6 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ChooseRole from "./pages/ChooseRole";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Profile from "./pages/Profile";
 import ConnectLandlord from "./pages/ConnectLandlord";
@@ -14,16 +13,13 @@ import LogComplaints from "./pages/LogComplaints.jsx";
 import InstallPrompt from "./components/InstallPrompt";
 import DarkModeToggle from "./components/DarkModeToggle.jsx";
 import { useEffect } from "react";
-import UploadReceipts from "./pages/UploadReceipts.jsx";
 import ViewReceipts from "./pages/ViewReceipts.jsx";
 import TenantReceipts from "./pages/TenantReceipts.jsx";
-import ReceiptHistory from "./pages/ReeiptHistory.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AddBankDetails from "./pages/AddBankDetails";
 import PayRent from "./pages/PayRent.jsx";
-
-// 🚧 Import Under Construction
+import { useNotifications } from "./hooks/useNotifications.js";
 import UnderConstruction from "../src/components/UnderConstruction.jsx";
 import PaymentReceipts from "./pages/PaymentReceipts.jsx";
 
@@ -46,7 +42,6 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/choose-role" element={<ChooseRole />} />
 
       {/* Protected: any logged-in user */}
       <Route element={<ProtectedRoute />}>
@@ -57,8 +52,6 @@ function AppRoutes() {
       <Route element={<ProtectedRoute allowedRole="tenant" />}>
         <Route path="/connect-landlord" element={<ConnectLandlord />} />
         <Route path="/complaints" element={<LogComplaints />} />
-        <Route path="/upload-receipts" element={<UploadReceipts />} />
-        <Route path="/receipt-history" element={<ReceiptHistory />} />
         <Route path="/pay-rent" element={<PayRent />} />
         <Route path="/payment-receipt" element={<PaymentReceipts />} />
       </Route>
@@ -78,6 +71,7 @@ function AppRoutes() {
 export default function App() {
   // ✅ Toggle this flag to show/hide the Under Construction screen
   const underConstruction = false;
+  useNotifications();
 
   return (
     <AuthProvider>
@@ -91,6 +85,7 @@ export default function App() {
             <InstallPrompt />
             <DarkModeToggle />
             <ToastContainer position="top-right" autoClose={3000} />
+            <YourRoutes />
           </>
         )}
       </Router>
