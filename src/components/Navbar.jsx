@@ -48,6 +48,7 @@ export default function Navbar() {
           <Link to="/pay-rent" onClick={() => setMenuOpen(false)}>Pay Rent</Link>
           <Link to="/payment-receipt" onClick={() => setMenuOpen(false)}>Payment Receipts</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
+          <Link to="/support" onClick={() => setMenuOpen(false)}>Contact Support</Link>
         </>
       );
     }
@@ -60,6 +61,7 @@ export default function Navbar() {
           <Link to="/view-receipts" onClick={() => setMenuOpen(false)}>View Receipts</Link>
           <Link to="/add-bank-details" onClick={() => setMenuOpen(false)}>Add Bank Details</Link>
           <button onClick={(e) => { handleLogout(e); setMenuOpen(false); }} className="logout-btn">Logout</button>
+          <Link to="/support" onClick={() => setMenuOpen(false)}>Contact Support</Link>
         </>
       );
     }

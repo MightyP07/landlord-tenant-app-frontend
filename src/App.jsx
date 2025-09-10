@@ -22,6 +22,7 @@ import PayRent from "./pages/PayRent.jsx";
 import { useNotifications } from "./hooks/useNotifications.js";
 import UnderConstruction from "../src/components/UnderConstruction.jsx";
 import PaymentReceipts from "./pages/PaymentReceipts.jsx";
+import Support from "./pages/Support.jsx";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -46,6 +47,7 @@ function AppRoutes() {
       {/* Protected: any logged-in user */}
       <Route element={<ProtectedRoute />}>
         <Route path="/profile" element={<Profile />} />
+        <Route path="/support" element={<Support />} /> 
       </Route>
 
       {/* Protected: only tenants */}

@@ -20,20 +20,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (user?._id) {
       socket.connect();
-
-      // Register user with backend
       socket.emit("registerUser", user._id);
 
-      // Listen for incoming notifications
       socket.on("notification", (notif) => {
         console.log("📩 New Notification:", notif);
-
-        // Vibrate (if supported)
-        if ("vibrate" in navigator) {
-          navigator.vibrate([300, 200, 300, 200, 300]); // aggressive buzz
-        }
-
-        // Show toast notification
+        if ("vibrate" in navigator) navigator.vibrate([300, 200, 300]);
         toast.info(notif.message, {
           autoClose: false,
           closeOnClick: true,
@@ -42,7 +33,6 @@ export const AuthProvider = ({ children }) => {
       });
     }
 
-    // Cleanup on unmount or user change
     return () => {
       socket.off("notification");
       socket.disconnect();
@@ -62,26 +52,37 @@ export const AuthProvider = ({ children }) => {
 
   const setUser = (newUser) => updateAuth(newUser, auth.token);
 
-  const fetchCurrentUser = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch(`${API_BASE}/api/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok && data.user) {
-        updateAuth(data.user, token);
-      }
-    } catch (err) {
-      console.error("❌ Fetch current user error:", err);
+const fetchCurrentUser = async () => {
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      // Persist full photo URL
+      const userWithFullPhoto = {
+        ...data.user,
+        photo: data.user.photo ? `${data.user.photo}` : null,
+      };
+      updateAuth(userWithFullPhoto, token);
     }
-  };
+  } catch (err) {
+    console.error("❌ Fetch current user error:", err);
+  }
+};
+
 
   const logout = () => {
     localStorage.removeItem("auth");
     setAuth({ user: null, token: null });
-    socket.disconnect(); // Clean socket disconnect
+    socket.disconnect();
   };
+
+  // ✅ NEW: Fetch fresh user on mount
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [token]);
 
   return (
     <AuthContext.Provider

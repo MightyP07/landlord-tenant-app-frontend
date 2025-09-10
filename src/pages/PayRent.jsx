@@ -1,4 +1,4 @@
-// PayRent.jsx
+// src/pages/PayRent.jsx
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ export default function PayRent() {
   const notified = useRef(false);
   const alarmRef = useRef(null);
 
-  // init alarm
+  // Init alarm
   useEffect(() => {
     alarmRef.current = new Audio("/sounds/alarm.mp3");
     alarmRef.current.loop = true;
@@ -63,12 +63,16 @@ export default function PayRent() {
 
   const handleCancel = () => navigate("/profile");
 
+  // 🔹 Calculate amounts
+  const rentAmount = pendingRent?.amount || 0;
+  const serviceFee = parseFloat((rentAmount * 0.03).toFixed(2)); // 3%
+  const totalToPay = rentAmount + serviceFee;
+  const amountInKobo = totalToPay * 100; // for Paystack
+
+  // Paystack enable only if landlord has set rent
+  const canPay = !!pendingRent?.amount && !!user.email;
+
   const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
-  const amountInKobo =
-    pendingRent && pendingRent.amount
-      ? Number(String(pendingRent.amount).replace(/,/g, "")) * 100
-      : 0;
-  const canPay = !!pendingRent && !!user.email;
 
   const componentProps = {
     email: user.email,
@@ -83,7 +87,8 @@ export default function PayRent() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`},
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ reference: reference.reference }),
         });
 
@@ -115,7 +120,7 @@ export default function PayRent() {
       }
 
       if ("vibrate" in navigator) {
-        navigator.vibrate([500, 200, 500, 200, 1000, 200, 1000]); // aggressive pattern
+        navigator.vibrate([500, 200, 500, 200, 1000, 200, 1000]);
       }
 
       if (pendingRent._id) scheduleRentReminder(pendingRent._id, pendingRent.amount);
@@ -144,13 +149,17 @@ export default function PayRent() {
     <div className="payrent-container">
       <h2 className="payrent-title">Pay Rent</h2>
 
-      {pendingRent?.amount ? (
-        <div className="pending-rent">
-          <p><strong>Landlord set your rent:</strong> ₦{pendingRent.amount}</p>
-        </div>
-      ) : (
-        <p className="no-rent">Your landlord has not set the rent yet. Paystack disabled.</p>
-      )}
+      <div className="pending-rent">
+        {pendingRent?.amount ? (
+          <>
+            <p><strong>Landlord set your rent:</strong> ₦{rentAmount}</p>
+            <p><strong>Service Fee (3%):</strong> ₦{serviceFee}</p>
+            <p><strong>Total to Pay:</strong> ₦{totalToPay}</p>
+          </>
+        ) : (
+          <p className="no-rent">Your landlord has not set the rent yet. Paystack disabled.</p>
+        )}
+      </div>
 
       {user.landlordId ? (
         <div className="payrent-card">

@@ -44,22 +44,34 @@ export default function TenantPaymentReceipts() {
         <p className="no-receipts">You have no payment history yet.</p>
       ) : (
         <div className="receipts-grid">
-          {receipts.map((r) => (
-            <div key={r._id} className="receipt-card">
-              <span className="paid-badge">Paid ✅</span>
-              <h3 className="receipt-header">Payment Receipt</h3>
-              <p><strong>Amount Paid:</strong> ₦{r.amount}</p>
-              <p><strong>Date:</strong> {new Date(r.paidAt || r.uploadedAt).toLocaleString()}</p>
-              <p><strong>Reference:</strong> {r.reference}</p>
-              <p><strong>Payment Channel:</strong> {r.channel}</p>
-              <p><strong>Gateway Response:</strong> {r.gatewayResponse}</p>
-              {r.receiptUrl && (
-                <a href={r.receiptUrl} target="_blank" rel="noopener noreferrer" className="btn-download">
-                  Download Receipt
-                </a>
-              )}
-            </div>
-          ))}
+          {receipts.map((r) => {
+            // Fallback logic for old receipts
+            const rentAmount = r.rentAmount ?? (r.totalPaid ? parseFloat((r.totalPaid / 1.03).toFixed(2)) : r.amount ?? 0);
+            const serviceFee = r.serviceFee ?? (r.totalPaid ? parseFloat((r.totalPaid - rentAmount).toFixed(2)) : 0);
+            const totalPaid = r.totalPaid ?? r.amount ?? (rentAmount + serviceFee);
+
+            return (
+              <div key={r._id} className="receipt-card">
+                <span className="paid-badge">Paid ✅</span>
+                <h3 className="receipt-header">Payment Receipt</h3>
+
+                <p><strong>Rent Amount:</strong> ₦{rentAmount.toLocaleString()}</p>
+                <p><strong>Service Fee (3%):</strong> ₦{serviceFee.toLocaleString()}</p>
+                <p><strong>Total Paid:</strong> ₦{totalPaid.toLocaleString()}</p>
+
+                <p><strong>Date:</strong> {new Date(r.paidAt || r.uploadedAt).toLocaleString()}</p>
+                <p><strong>Reference:</strong> {r.reference}</p>
+                <p><strong>Payment Channel:</strong> {r.channel}</p>
+                <p><strong>Gateway Response:</strong> {r.gatewayResponse}</p>
+
+                {r.receiptUrl && (
+                  <a href={r.receiptUrl} target="_blank" rel="noopener noreferrer" className="btn-download">
+                    Download Receipt
+                  </a>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

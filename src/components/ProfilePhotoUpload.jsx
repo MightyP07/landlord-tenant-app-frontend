@@ -4,16 +4,22 @@ import { toast } from "react-toastify";
 import "./ProfilePhotoUpload.css";
 import API_BASE from "../api.js";
 
-export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
-  const { user, token, setUser } = useAuth(); // ✅ get from context
+export default function ProfilePhotoUpload({ onUpload }) {
+  const { user, token, setUser } = useAuth();
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(currentPhoto || null);
   const [uploading, setUploading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [preview, setPreview] = useState(user?.photo || null);
 
+  // Keep preview in sync with AuthContext
   useEffect(() => {
-    setPreview(currentPhoto || null);
-  }, [currentPhoto]);
+    // Add cache-busting query param
+    if (user?.photo) {
+      setPreview(`${user.photo}?t=${new Date().getTime()}`);
+    } else {
+      setPreview(null);
+    }
+  }, [user?.photo]);
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
@@ -30,7 +36,7 @@ export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
     }
 
     setFile(selected);
-    setPreview(URL.createObjectURL(selected));
+    setPreview(URL.createObjectURL(selected)); // temporary preview
   };
 
   const handleUpload = async () => {
@@ -52,14 +58,14 @@ export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
       if (!res.ok) throw new Error(data.message || "Upload failed");
 
       toast.success("✅ Photo uploaded successfully!");
-      setPreview(data.photoUrl);
 
-      // ✅ persist in AuthContext + localStorage
-      const updatedUser = { ...user, photo: data.photoUrl };
-      setUser(updatedUser);
-      localStorage.setItem("auth", JSON.stringify({ user: updatedUser, token }));
+      // Persist full backend URL in AuthContext + localStorage
+      const freshPhotoUrl = data.photoUrl; // full URL from backend
+      setUser({ ...user, photo: freshPhotoUrl });
+      localStorage.setItem("auth", JSON.stringify({ user: { ...user, photo: freshPhotoUrl }, token }));
 
-      if (onUpload) onUpload(data.photoUrl);
+      if (onUpload) onUpload(freshPhotoUrl);
+
       setFile(null);
     } catch (err) {
       toast.error(`❌ ${err.message}`);
@@ -78,26 +84,21 @@ export default function ProfilePhotoUpload({ currentPhoto, onUpload }) {
           alt="Profile"
           className="photo-preview clickable"
           onClick={() => setModalOpen(true)}
+          onError={(e) => (e.target.src = "/default-avatar.png")} // fallback
         />
       ) : (
         <div className="photo-preview placeholder">No Photo</div>
       )}
 
-      {/* File input */}
       <label className="file-btn">
         {file ? file.name : "Choose Photo"}
         <input type="file" accept="image/*" onChange={handleFileChange} />
       </label>
 
-      <button
-        className="upload-btn"
-        onClick={handleUpload}
-        disabled={uploading}
-      >
+      <button className="upload-btn" onClick={handleUpload} disabled={uploading}>
         {uploading ? "Uploading..." : "Upload Photo"}
       </button>
 
-      {/* Modal for full-size photo */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <img src={preview} alt="Full Size" className="modal-photo" />

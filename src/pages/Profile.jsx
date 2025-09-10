@@ -1,3 +1,4 @@
+// src/pages/Profile.jsx
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../Profile.css";
@@ -12,7 +13,6 @@ export default function Profile() {
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
   const [wasDisconnected, setWasDisconnected] = useState(false);
-  const [photoUrl, setPhotoUrl] = useState(user?.photo || null);
   const navigate = useNavigate();
 
   // Fetch tenant profile on mount
@@ -50,7 +50,7 @@ export default function Profile() {
   if (!user) return <p>No user data found.</p>;
 
   const handlePhotoUpload = (url) => {
-    setPhotoUrl(url);
+    // ✅ Already handled in AuthContext, no separate state needed
     updateAuth({ ...user, photo: url }, token);
   };
 
@@ -87,7 +87,6 @@ export default function Profile() {
       connecting={connecting}
       message={message}
       wasDisconnected={wasDisconnected}
-      photoUrl={photoUrl}
       handlePhotoUpload={handlePhotoUpload}
       token={token}
       updateAuth={updateAuth}
@@ -96,7 +95,6 @@ export default function Profile() {
     <LandlordProfile
       user={user}
       navigate={navigate}
-      photoUrl={photoUrl}
       handlePhotoUpload={handlePhotoUpload}
     />
   );
@@ -111,7 +109,6 @@ function TenantProfile({
   connecting,
   message,
   wasDisconnected,
-  photoUrl,
   handlePhotoUpload,
 }) {
   const navigate = useNavigate();
@@ -131,7 +128,8 @@ function TenantProfile({
         <button className="btn-secondary">View Rental Info</button>
       </div>
 
-      <ProfilePhotoUpload currentPhoto={photoUrl} onUpload={handlePhotoUpload} />
+      {/* ✅ Always derive photo from user.photo */}
+      <ProfilePhotoUpload onUpload={handlePhotoUpload} />
 
       <div className="profile-info">
         <h2>Your Details</h2>
@@ -198,38 +196,37 @@ function TenantProfile({
             )}
           </>
         )}
-        
-{user.pendingRent?.amount && (
-  <div
-    className="pending-rent-alert"
-    style={{
-      backgroundColor: "#ffd666",
-      color: "#333",
-      padding: "18px",
-      borderRadius: "10px",
-      marginTop: "20px",
-      textAlign: "center",
-      fontSize: "1.3rem",
-      fontWeight: "600",
-      boxShadow: "0 0 12px rgba(255, 200, 0, 0.4)",
-      animation: "pulse 1.5s infinite alternate",
-      cursor: "pointer",
-    }}
-    onClick={() => navigate("/pay-rent")}
-    title="Click to pay your rent"
-  >
-    💡 Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>.
-    Click here to pay now.
-  </div>
-)}
 
+        {user.pendingRent?.amount && (
+          <div
+            className="pending-rent-alert"
+            style={{
+              backgroundColor: "#ffd666",
+              color: "#333",
+              padding: "18px",
+              borderRadius: "10px",
+              marginTop: "20px",
+              textAlign: "center",
+              fontSize: "1.3rem",
+              fontWeight: "600",
+              boxShadow: "0 0 12px rgba(255, 200, 0, 0.4)",
+              animation: "pulse 1.5s infinite alternate",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/pay-rent")}
+            title="Click to pay your rent"
+          >
+            💡 Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>.
+            Click here to pay now.
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 // ---------------- Landlord Profile ----------------
-function LandlordProfile({ user, navigate, photoUrl, handlePhotoUpload }) {
+function LandlordProfile({ user, navigate, handlePhotoUpload }) {
   return (
     <div className="profile-page landlord-profile darkMode">
       <div className="profile-header">
@@ -247,7 +244,8 @@ function LandlordProfile({ user, navigate, photoUrl, handlePhotoUpload }) {
         </button>
       </div>
 
-      <ProfilePhotoUpload currentPhoto={photoUrl} onUpload={handlePhotoUpload} />
+      {/* ✅ Always derive photo from user.photo */}
+      <ProfilePhotoUpload onUpload={handlePhotoUpload} />
 
       <div className="profile-info">
         <h2>Your Details</h2>
@@ -257,15 +255,6 @@ function LandlordProfile({ user, navigate, photoUrl, handlePhotoUpload }) {
           <li><strong>Email:</strong> {user.email}</li>
           <li><strong>Role:</strong> {user.role}</li>
           <li><strong>Landlord Code:</strong> {user.landlordCode}</li>
-        </ul>
-      </div>
-
-      <div className="dashboard-section">
-        <h2>Quick Links</h2>
-        <ul>
-          <li>👥 Manage tenant list</li>
-          <li>💰 Track rental payments</li>
-          <li>🛠️ Review maintenance requests</li>
         </ul>
       </div>
     </div>
