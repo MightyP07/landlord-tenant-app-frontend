@@ -48,13 +48,12 @@ export default function Profile() {
   }, [user]);
 
   useEffect(() => {
-  if (user && token) {
-    subscribeUser(token).then((res) => {
-      if (!res.ok) console.log("push subscribe failed", res.message);
-    });
-  }
-}, [user, token]);
-
+    if (user && token) {
+      subscribeUser(token).then((res) => {
+        if (!res.ok) console.log("push subscribe failed", res.message);
+      });
+    }
+  }, [user, token]);
 
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
@@ -110,7 +109,6 @@ export default function Profile() {
 }
 
 // ---------------- Tenant Profile ----------------
-// ---------------- Tenant Profile ----------------
 function TenantProfile({
   user,
   landlordCode,
@@ -135,7 +133,6 @@ function TenantProfile({
         <button className="btn-primary" onClick={() => navigate("/complaints")}>
           Log a Complaint
         </button>
-        {/* ✅ New navigation link for Rental Info */}
         <button className="btn-secondary" onClick={() => navigate("/rental-info")}>
           Rental Info
         </button>
@@ -157,10 +154,20 @@ function TenantProfile({
         <h2>Your Landlord</h2>
         {user.landlordId ? (
           <ul>
+            {user.landlordId.photo && (
+              <li>
+                <strong>Photo:</strong>
+                <img
+                  src={user.landlordId.photo}
+                  alt={`${user.landlordId.firstName}'s photo`}
+                  style={{ width: "120px", borderRadius: "10px", marginTop: "10px" }}
+                />
+              </li>
+            )}
             <li><strong>Name:</strong> {user.landlordId.firstName} {user.landlordId.lastName}</li>
             <li><strong>Email:</strong> {user.landlordId.email}</li>
-            <li><strong>Bank:</strong> {user.landlordId?.bankDetails?.bankName || "Not yet set by your landlord"}</li>
-            <li><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "Not yet set by your landlord"}</li>
+            <li><strong>Bank:</strong> {user.landlordId?.bankDetails?.bankName || "Not yet set"}</li>
+            <li><strong>Account Name:</strong> {user.landlordId?.bankDetails?.accountName || "Not yet set"}</li>
             {user.landlordId?.bankDetails?.accountNumber && (
               <li>
                 <strong>Account Number:</strong> {user.landlordId.bankDetails.accountNumber}
@@ -208,35 +215,10 @@ function TenantProfile({
             )}
           </>
         )}
-
-        {user.pendingRent?.amount && (
-          <div
-            className="pending-rent-alert"
-            style={{
-              backgroundColor: "#ffd666",
-              color: "#333",
-              padding: "18px",
-              borderRadius: "10px",
-              marginTop: "20px",
-              textAlign: "center",
-              fontSize: "1.3rem",
-              fontWeight: "600",
-              boxShadow: "0 0 12px rgba(255, 200, 0, 0.4)",
-              animation: "pulse 1.5s infinite alternate",
-              cursor: "pointer",
-            }}
-            onClick={() => navigate("/pay-rent")}
-            title="Click to pay your rent"
-          >
-            💡 Your landlord has set your rent to <strong>₦{user.pendingRent.amount}</strong>.
-            Click here to pay now.
-          </div>
-        )}
       </div>
     </div>
   );
 }
-
 
 // ---------------- Landlord Profile ----------------
 function LandlordProfile({ user, navigate, handlePhotoUpload }) {
@@ -268,6 +250,43 @@ function LandlordProfile({ user, navigate, handlePhotoUpload }) {
           <li><strong>Role:</strong> {user.role}</li>
           <li><strong>Landlord Code:</strong> {user.landlordCode}</li>
         </ul>
+
+        {/* Placeholder for tenant photos */}
+        {user.tenants?.length > 0 && (
+          <div className="tenant-photos">
+            <h3>Your Tenants</h3>
+            <ul style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+              {user.tenants.map((tenant) => (
+                <li key={tenant._id} style={{ textAlign: "center" }}>
+                  {tenant.photo ? (
+                    <img
+                      src={tenant.photo}
+                      alt={`${tenant.firstName}'s photo`}
+                      style={{ width: "100px", borderRadius: "10px" }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        backgroundColor: "#ccc",
+                        borderRadius: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.8rem",
+                        color: "#555",
+                      }}
+                    >
+                      No Photo
+                    </div>
+                  )}
+                  <p>{tenant.firstName}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

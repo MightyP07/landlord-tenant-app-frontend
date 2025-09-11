@@ -70,18 +70,18 @@ const fetchCurrentUser = async () => {
     });
     const data = await res.json();
     if (res.ok && data.user) {
-      // Persist full photo URL
-      const userWithFullPhoto = {
-        ...data.user,
-        photo: data.user.photo ? `${data.user.photo}` : null,
-      };
-      updateAuth(userWithFullPhoto, token);
+      // Only update AuthContext if the user.photo is empty locally
+      if (!auth.user?.photo) {
+        updateAuth(data.user, token);
+      } else {
+        // keep local uploaded photo
+        updateAuth({ ...data.user, photo: auth.user.photo }, token);
+      }
     }
   } catch (err) {
     console.error("❌ Fetch current user error:", err);
   }
 };
-
 
   const logout = () => {
     localStorage.removeItem("auth");

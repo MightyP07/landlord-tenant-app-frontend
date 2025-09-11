@@ -11,15 +11,18 @@ export default function ProfilePhotoUpload({ onUpload }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [preview, setPreview] = useState(user?.photo || null);
 
-  // Keep preview in sync with AuthContext
-  useEffect(() => {
-    // Add cache-busting query param
-    if (user?.photo) {
-      setPreview(`${user.photo}?t=${new Date().getTime()}`);
-    } else {
-      setPreview(null);
-    }
-  }, [user?.photo]);
+useEffect(() => {
+  // If a new file is selected, show it immediately
+  if (file) {
+    setPreview(URL.createObjectURL(file));
+  } else if (user?.photo) {
+    // Add cache-busting timestamp
+    setPreview(`${user.photo}?t=${new Date().getTime()}`);
+  } else {
+    setPreview(null);
+  }
+}, [user?.photo, file]);
+
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
