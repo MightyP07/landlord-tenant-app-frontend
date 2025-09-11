@@ -47,6 +47,15 @@ export default function Profile() {
     }
   }, [user]);
 
+  useEffect(() => {
+  if (user && token) {
+    subscribeUser(token).then((res) => {
+      if (!res.ok) console.log("push subscribe failed", res.message);
+    });
+  }
+}, [user, token]);
+
+
   if (loading) return <p>Loading profile...</p>;
   if (!user) return <p>No user data found.</p>;
 
