@@ -6,6 +6,7 @@ import API_BASE from "../api.js";
 import { useNavigate } from "react-router-dom";
 import ProfilePhotoUpload from "../components/ProfilePhotoUpload.jsx";
 import { toast } from "react-toastify";
+import { subscribeUser } from "../utils/notification.js";
 
 export default function Profile() {
   const { user, token, loading, updateAuth } = useAuth();
@@ -50,7 +51,6 @@ export default function Profile() {
   if (!user) return <p>No user data found.</p>;
 
   const handlePhotoUpload = (url) => {
-    // ✅ Already handled in AuthContext, no separate state needed
     updateAuth({ ...user, photo: url }, token);
   };
 
@@ -101,6 +101,7 @@ export default function Profile() {
 }
 
 // ---------------- Tenant Profile ----------------
+// ---------------- Tenant Profile ----------------
 function TenantProfile({
   user,
   landlordCode,
@@ -125,10 +126,12 @@ function TenantProfile({
         <button className="btn-primary" onClick={() => navigate("/complaints")}>
           Log a Complaint
         </button>
-        <button className="btn-secondary">View Rental Info</button>
+        {/* ✅ New navigation link for Rental Info */}
+        <button className="btn-secondary" onClick={() => navigate("/rental-info")}>
+          Rental Info
+        </button>
       </div>
 
-      {/* ✅ Always derive photo from user.photo */}
       <ProfilePhotoUpload onUpload={handlePhotoUpload} />
 
       <div className="profile-info">
@@ -225,6 +228,7 @@ function TenantProfile({
   );
 }
 
+
 // ---------------- Landlord Profile ----------------
 function LandlordProfile({ user, navigate, handlePhotoUpload }) {
   return (
@@ -244,7 +248,6 @@ function LandlordProfile({ user, navigate, handlePhotoUpload }) {
         </button>
       </div>
 
-      {/* ✅ Always derive photo from user.photo */}
       <ProfilePhotoUpload onUpload={handlePhotoUpload} />
 
       <div className="profile-info">

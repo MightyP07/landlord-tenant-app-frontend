@@ -52,7 +52,7 @@ self.addEventListener("fetch", (event) => {
 
 // ===== Push Notifications & Aggressive Alarm =====
 self.addEventListener("push", (event) => {
-  let data = {};
+  let data = { title: "Notification", body: "You have a notification", url: "/" };
   try {
     data = event.data ? event.data.json() : {};
   } catch (e) {
@@ -115,14 +115,17 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Handle notification clicks
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
+  const url = event.notification.data?.url || "/";
   event.waitUntil(
-    self.clients.matchAll({ type: "window" }).then((clientList) => {
-      const appClient = clientList.find((c) => c.url.includes("/") && "focus" in c);
-      if (appClient) return appClient.focus();
-      return self.clients.openWindow("/");
-    })
+    clients.matchAll({ type: "window", includeUncontrolled: true })
+      .then(windowClients => {
+        for (const client of windowClients) {
+          if (client.url === url && "focus" in client) return client.focus();
+        }
+        if (clients.openWindow) return clients.openWindow(url);
+      })
   );
 });

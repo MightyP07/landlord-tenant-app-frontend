@@ -23,6 +23,7 @@ import { useNotifications } from "./hooks/useNotifications.js";
 import UnderConstruction from "../src/components/UnderConstruction.jsx";
 import PaymentReceipts from "./pages/PaymentReceipts.jsx";
 import Support from "./pages/Support.jsx";
+import RentalInfo from "./pages/RentalInfo.jsx";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -56,6 +57,7 @@ function AppRoutes() {
         <Route path="/complaints" element={<LogComplaints />} />
         <Route path="/pay-rent" element={<PayRent />} />
         <Route path="/payment-receipt" element={<PaymentReceipts />} />
+        <Route path="/rental-info" element={<RentalInfo />} />
       </Route>
 
       {/* Protected: only landlords */}

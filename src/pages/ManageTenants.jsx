@@ -10,7 +10,9 @@ export default function ManageTenants() {
   const [loadingTenants, setLoadingTenants] = useState(true);
   const [error, setError] = useState("");
   const [removingId, setRemovingId] = useState(null);
+
   const [rentModal, setRentModal] = useState({ open: false, tenant: null, amount: "" });
+  const [infoModal, setInfoModal] = useState({ open: false, tenant: null, file: null });
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -110,23 +112,35 @@ export default function ManageTenants() {
     }
   };
 
-  const handleRemindRent = async (tenant) => {
+  const openInfoModal = (tenant) => setInfoModal({ open: true, tenant, file: null });
+  const closeInfoModal = () => setInfoModal({ open: false, tenant: null, file: null });
+
+  const handleUpdateInfo = async () => {
+    if (!infoModal.file) {
+      toast.error("Please upload a file");
+      return;
+    }
+
     try {
       const stored = localStorage.getItem("auth");
       const token = stored ? JSON.parse(stored)?.token : null;
 
-      const res = await fetch(`${API_BASE}/api/landlord/tenants/${tenant._id}/remind-rent`, {
+      const formData = new FormData();
+      formData.append("rentalInfo", infoModal.file);
+
+      const res = await fetch(`${API_BASE}/api/landlord/tenants/${infoModal.tenant._id}/rental-info`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        body: formData,
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send reminder");
+      if (!res.ok) throw new Error(data.message || "Failed to upload rental info");
 
-      toast.success(`Reminder sent to ${tenant.firstName}`);
+      toast.success(`Rental info updated for ${infoModal.tenant.firstName}`);
+      closeInfoModal();
     } catch (err) {
       toast.error(err.message);
     }
@@ -151,7 +165,7 @@ export default function ManageTenants() {
               <p><strong>Connected On:</strong> {formatDate(tenant.connectedOn)}</p>
               <div className="card-buttons">
                 <button className="btn-setrent" onClick={() => openRentModal(tenant)}>Set Rent Fee</button>
-                <button className="btn-remind" onClick={() => handleRemindRent(tenant)}>Remind Rent Fee</button>
+                <button className="btn-info" onClick={() => openInfoModal(tenant)}>Update Rental Info</button>
                 <button
                   className="btn-remove"
                   onClick={() => handleRemoveTenant(tenant._id)}
@@ -179,6 +193,24 @@ export default function ManageTenants() {
             <div className="modal-buttons">
               <button onClick={handleSetRent} className="btn-confirm">Send</button>
               <button onClick={closeRentModal} className="btn-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rental Info Modal */}
+      {infoModal.open && (
+        <div className="rent-modal">
+          <div className="rent-modal-content">
+            <h3>Upload Rental Info for {infoModal.tenant.firstName}</h3>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              onChange={(e) => setInfoModal({ ...infoModal, file: e.target.files[0] })}
+            />
+            <div className="modal-buttons">
+              <button onClick={handleUpdateInfo} className="btn-confirm">Upload</button>
+              <button onClick={closeInfoModal} className="btn-cancel">Cancel</button>
             </div>
           </div>
         </div>

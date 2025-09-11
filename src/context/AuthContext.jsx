@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import API_BASE from "../api.js";
 import socket from "../utils/socket.js";
 import { toast } from "react-toastify";
+import { subscribeUser } from "../utils/notification.js";
 
 const AuthContext = createContext();
 
@@ -33,11 +34,20 @@ export const AuthProvider = ({ children }) => {
       });
     }
 
+
     return () => {
       socket.off("notification");
       socket.disconnect();
     };
   }, [user]);
+
+      useEffect(() => {
+  if (user && token) {
+    subscribeUser(token).then((res) => {
+      if (!res.ok) console.log("push subscribe failed", res.message);
+    });
+  }
+}, [user, token]);
 
   const updateAuth = (userData, tokenData) => {
     const newAuth = { user: userData, token: tokenData ?? auth.token };

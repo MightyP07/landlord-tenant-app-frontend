@@ -1,0 +1,87 @@
+.rentalinfo-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+  transition: background 0.3s, color 0.3s, border 0.3s;
+}
+
+.rentalinfo-container h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.download-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: #007bff;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.download-btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+
+.view-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  margin-right: 10px;
+  background: #28a745;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.view-btn:hover {
+  background: #1e7e34;
+  transform: scale(1.05);
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+/* ================= DARK MODE ================= */
+body.dark .rentalinfo-container {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #f0f0f0;
+}
+
+body.dark .rentalinfo-container h2 {
+  color: #f0f0f0;
+}
+
+body.dark .download-btn {
+  background: #3399ff;
+}
+
+body.dark .download-btn:hover {
+  background: #1a73e8;
+}
+
+body.dark .view-btn {
+  background: green;
+}
+
+body.dark .view-btn:hover {
+  background: #2e8b57;
+}
+
+body.dark .error {
+  color: #ff6b6b;
+}
